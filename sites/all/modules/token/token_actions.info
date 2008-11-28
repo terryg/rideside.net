@@ -1,0 +1,12 @@
+; $Id: token_actions.info,v 1.1 2007/07/31 21:21:31 eaton Exp $
+name = Token actions
+description = Provides enhanced versions of core Drupal actions using the Token module.
+requirements[] = token
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-02-23
+version = "6.x-1.10"
+core = "6.x"
+project = "token"
+datestamp = "1203741911"
+
