@@ -167,7 +167,7 @@ function chameleon_comment($comment, $node, $links = array()) {
     $output .= "  </div>\n";
   }
   $output .= " </div>\n";
-  $output .= " <div class=\"links\">". theme('links', array_merge($submitted, $links) ."</div>\n";
+  $output .= " <div class=\"links\">". theme('links', array_merge($submitted, $links)) ."</div>\n";
   $output .= "</div>\n";
 
   return $output;
