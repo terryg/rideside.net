@@ -1,5 +1,5 @@
 <?php
-// $Id: theme.inc,v 1.415.2.13 2008/10/16 13:50:59 dries Exp $
+// $Id: theme.inc,v 1.415.2.24 2009/06/18 12:04:04 goba Exp $
 
 /**
  * @file
@@ -8,8 +8,7 @@
  * The theme system allows for nearly all output of the Drupal system to be
  * customized by user themes.
  *
- * @see <a href="http://drupal.org/node/171179">Theme guide</a>
- * @see themeable
+ * @ingroup themeable
  */
 
 /**
@@ -261,6 +260,7 @@ function drupal_rebuild_theme_registry() {
  * over how and when the preprocess functions are run.
  */
 function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
+  $result = array();
   $function = $name .'_theme';
   if (function_exists($function)) {
     $result = $function($cache, $type, $theme, $path);
@@ -357,6 +357,26 @@ function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
 
     // Merge the newly created theme hooks into the existing cache.
     $cache = array_merge($cache, $result);
+  }
+
+  // Let themes have preprocess functions even if they didn't register a template.
+  if ($type == 'theme' || $type == 'base_theme') {
+    foreach ($cache as $hook => $info) {
+      // Check only if it's a template and not registered by the theme or engine.
+      if (!empty($info['template']) && empty($result[$hook])) {
+        if (!isset($info['preprocess functions'])) {
+          $cache[$hook]['preprocess functions'] = array();
+        }
+        if (function_exists($name .'_preprocess')) {
+          $cache[$hook]['preprocess functions'][] = $name .'_preprocess';
+        }
+        if (function_exists($name .'_preprocess_'. $hook)) {
+          $cache[$hook]['preprocess functions'][] = $name .'_preprocess_'. $hook;
+        }
+        // Ensure uniqueness.
+        $cache[$hook]['preprocess functions'] = array_unique($cache[$hook]['preprocess functions']);
+      }
+    }
   }
 }
 
@@ -667,6 +687,10 @@ function theme() {
   }
   // restore path_to_theme()
   $theme_path = $temp;
+  // Add final markup to the full page.
+  if ($hook == 'page' || $hook == 'book_export_html') {
+    $output = drupal_final_markup($output);
+  }
   return $output;
 }
 
@@ -678,11 +702,16 @@ function theme() {
 function drupal_discover_template($paths, $suggestions, $extension = '.tpl.php') {
   global $theme_engine;
 
+  // Remove slashes or null to prevent files from being included from
+  // an unexpected location (especially on Windows servers).
+  $extension = str_replace(array("/", "\\", "\0"), '', $extension);
+
   // Loop through all paths and suggestions in FIFO order.
   $suggestions = array_reverse($suggestions);
   $paths = array_reverse($paths);
   foreach ($suggestions as $suggestion) {
     if (!empty($suggestion)) {
+      $suggestion = str_replace(array("/", "\\", "\0"), '', $suggestion);
       foreach ($paths as $path) {
         if (file_exists($file = $path .'/'. $suggestion . $extension)) {
           return $file;
@@ -747,6 +776,12 @@ function drupal_find_theme_functions($cache, $prefixes) {
         $templates[$hook] = array(
           'function' => $prefix .'_'. $hook,
         );
+        // Ensure that the pattern is maintained from base themes to its sub-themes.
+        // Each sub-theme will have their functions scanned so the pattern must be
+        // held for subsequent runs.
+        if (isset($info['pattern'])) {
+          $templates[$hook]['pattern'] = $info['pattern'];
+        }
       }
     }
   }
@@ -811,6 +846,12 @@ function drupal_find_theme_templates($cache, $extension, $path) {
         'template' => $template,
         'path' => dirname($file->filename),
       );
+    }
+    // Ensure that the pattern is maintained from base themes to its sub-themes.
+    // Each sub-theme will have their templates scanned so the pattern must be
+    // held for subsequent runs.
+    if (isset($cache[$hook]['pattern'])) {
+      $templates[$hook]['pattern'] = $cache[$hook]['pattern'];
     }
   }
 
@@ -1101,6 +1142,7 @@ function theme_status_messages($display = NULL) {
  *   A string containing an unordered list of links.
  */
 function theme_links($links, $attributes = array('class' => 'links')) {
+  global $language;
   $output = '';
 
   if (count($links) > 0) {
@@ -1119,7 +1161,8 @@ function theme_links($links, $attributes = array('class' => 'links')) {
       if ($i == $num_links) {
         $class .= ' last';
       }
-      if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page()))) {
+      if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page()))
+          && (empty($link['language']) || $link['language']->language == $language->language)) {
         $class .= ' active';
       }
       $output .= '<li'. drupal_attributes(array('class' => $class)) .'>';
@@ -1409,10 +1452,10 @@ function theme_mark($type = MARK_NEW) {
  *   All other elements are treated as attributes of the list item element.
  * @param $title
  *   The title of the list.
- * @param $attributes
- *   The attributes applied to the list element.
  * @param $type
  *   The type of list to return (e.g. "ul", "ol")
+ * @param $attributes
+ *   The attributes applied to the list element.
  * @return
  *   A string containing the list output.
  */
@@ -1589,7 +1632,7 @@ function theme_username($object) {
     $output .= ' ('. t('not verified') .')';
   }
   else {
-    $output = variable_get('anonymous', t('Anonymous'));
+    $output = check_plain(variable_get('anonymous', t('Anonymous')));
   }
 
   return $output;
@@ -1777,8 +1820,8 @@ function template_preprocess_page(&$variables) {
   $variables['primary_links']     = theme_get_setting('toggle_primary_links') ? menu_primary_links() : array();
   $variables['secondary_links']   = theme_get_setting('toggle_secondary_links') ? menu_secondary_links() : array();
   $variables['search_box']        = (theme_get_setting('toggle_search') ? drupal_get_form('search_theme_form') : '');
-  $variables['site_name']         = (theme_get_setting('toggle_name') ? variable_get('site_name', 'Drupal') : '');
-  $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? variable_get('site_slogan', '') : '');
+  $variables['site_name']         = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Drupal')) : '');
+  $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? filter_xss_admin(variable_get('site_slogan', '')) : '');
   $variables['css']               = drupal_add_css();
   $variables['styles']            = drupal_get_css();
   $variables['scripts']           = drupal_get_js();
@@ -1834,6 +1877,7 @@ function template_preprocess_page(&$variables) {
   $suggestion = 'page';
   $suggestions = array();
   while ($arg = arg($i++)) {
+    $arg = str_replace(array("/", "\\", "\0"), '', $arg);
     $suggestions[] = $suggestion .'-'. $arg;
     if (!is_numeric($arg)) {
       $suggestion .= '-'. $arg;

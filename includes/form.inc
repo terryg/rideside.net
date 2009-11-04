@@ -1,5 +1,5 @@
 <?php
-// $Id: form.inc,v 1.265.2.13 2008/10/16 12:43:08 goba Exp $
+// $Id: form.inc,v 1.265.2.28 2009/09/16 17:54:19 goba Exp $
 
 /**
  * @defgroup forms Form builder functions
@@ -119,9 +119,8 @@ function drupal_get_form($form_id) {
     drupal_process_form($form_id, $form, $form_state);
     if ($cacheable && !empty($form['#cache'])) {
       // Caching is done past drupal_process_form so #process callbacks can
-      // set #cache. By not sending the form state, we avoid storing
-      // $form_state['storage'].
-      form_set_cache($form_build_id, $original_form, NULL);
+      // set #cache.
+      form_set_cache($form_build_id, $original_form, $form_state);
     }
   }
 
@@ -132,14 +131,14 @@ function drupal_get_form($form_id) {
   // the form will simply be re-rendered with the values still in its
   // fields.
   //
-  // If $form_state['storage'] or $form_state['rebuild'] have been
-  // set by any submit or validate handlers, however, we know that
-  // we're in a complex multi-part process of some sort and the form's
-  // workflow is NOT complete. We need to construct a fresh copy of
-  // the form, passing in the latest $form_state in addition to any
-  // other variables passed into drupal_get_form().
+  // If $form_state['storage'] or $form_state['rebuild'] has been set
+  // and the form has been submitted, we know that we're in a complex
+  // multi-part process of some sort and the form's workflow is NOT 
+  // complete. We need to construct a fresh copy of the form, passing
+  // in the latest $form_state in addition to any other variables passed
+  // into drupal_get_form().
 
-  if (!empty($form_state['rebuild']) || !empty($form_state['storage'])) {
+  if ((!empty($form_state['storage']) || !empty($form_state['rebuild'])) && !empty($form_state['submitted']) && !form_get_errors()) {
     $form = drupal_rebuild_form($form_id, $form_state, $args);
   }
 
@@ -272,6 +271,7 @@ function form_get_cache($form_build_id, &$form_state) {
  *   in here when it is called.
  * For example:
  *
+ * @code
  * // register a new user
  * $form_state = array();
  * $form_state['values']['name'] = 'robo-user';
@@ -289,9 +289,14 @@ function form_get_cache($form_build_id, &$form_state) {
  * $form_state['values']['name'] = 'robo-user';
  * $form_state['values']['op'] = t('Save');
  * drupal_execute('story_node_form', $form_state, (object)$node);
+ * @endcode
  */
 function drupal_execute($form_id, &$form_state) {
   $args = func_get_args();
+
+  // Make sure $form_state is passed around by reference.
+  $args[1] = &$form_state;
+  
   $form = call_user_func_array('drupal_retrieve_form', $args);
   $form['#post'] = $form_state['values'];
   drupal_prepare_form($form_id, $form, $form_state);
@@ -589,8 +594,7 @@ function drupal_validate_form($form_id, $form, &$form_state) {
  * @param $form
  *   An associative array containing the structure of the form.
  * @return
- *   A string containing the path of the page to display when processing
- *   is complete.
+ *   A string containing the themed HTML.
  */
 function drupal_render_form($form_id, &$form) {
   // Don't override #theme if someone already set it.
@@ -757,7 +761,10 @@ function form_execute_handlers($type, &$form, &$form_state) {
 
   foreach ($handlers as $function) {
     if (function_exists($function))  {
-      if ($type == 'submit' && ($batch =& batch_get())) {
+      // Check to see if a previous _submit handler has set a batch, but 
+      // make sure we do not react to a batch that is already being processed 
+      // (for instance if a batch operation performs a drupal_execute()).
+      if ($type == 'submit' && ($batch =& batch_get()) && !isset($batch['current_set'])) {
         // Some previous _submit handler has set a batch. We store the call
         // in a special 'control' batch set, for execution at the correct
         // time during the batch processing workflow.
@@ -973,7 +980,6 @@ function _form_builder_handle_input_element($form_id, &$form, &$form_state, $com
     $form['#id'] = form_clean_id('edit-'. implode('-', $form['#parents']));
   }
 
-  unset($edit);
   if (!empty($form['#disabled'])) {
     $form['#attributes']['disabled'] = 'disabled';
   }
@@ -1171,7 +1177,12 @@ function form_type_image_button_value($form, $edit = FALSE) {
  */
 function form_type_checkbox_value($form, $edit = FALSE) {
   if ($edit !== FALSE) {
-    return !empty($edit) ? $form['#return_value'] : 0;
+    if (empty($form['#disabled'])) {
+      return !empty($edit) ? $form['#return_value'] : 0;
+    }
+    else {
+      return $form['#default_value'];
+    }
   }
 }
 
@@ -1499,7 +1510,7 @@ function form_get_options($element, $key) {
  * @ingroup themeable
  */
 function theme_fieldset($element) {
-  if ($element['#collapsible']) {
+  if (!empty($element['#collapsible'])) {
     drupal_add_js('misc/collapse.js');
 
     if (!isset($element['#attributes']['class'])) {
@@ -1507,7 +1518,7 @@ function theme_fieldset($element) {
     }
 
     $element['#attributes']['class'] .= ' collapsible';
-    if ($element['#collapsed']) {
+    if (!empty($element['#collapsed'])) {
       $element['#attributes']['class'] .= ' collapsed';
     }
   }
@@ -1535,7 +1546,7 @@ function theme_radio($element) {
   $output .= (check_plain($element['#value']) == $element['#return_value']) ? ' checked="checked" ' : ' ';
   $output .= drupal_attributes($element['#attributes']) .' />';
   if (!is_null($element['#title'])) {
-    $output = '<label class="option">'. $output .' '. $element['#title'] .'</label>';
+    $output = '<label class="option" for="'. $element['#id'] .'">'. $output .' '. $element['#title'] .'</label>';
   }
 
   unset($element['#title']);
@@ -1618,7 +1629,7 @@ function password_confirm_validate($form, &$form_state) {
   $pass1 = trim($form['pass1']['#value']);
   if (!empty($pass1)) {
     $pass2 = trim($form['pass2']['#value']);
-    if ($pass1 != $pass2) {
+    if (strcmp($pass1, $pass2)) {
       form_error($form, t('The specified passwords do not match.'));
     }
   }
@@ -1874,7 +1885,7 @@ function theme_checkbox($element) {
   $checkbox .= drupal_attributes($element['#attributes']) .' />';
 
   if (!is_null($element['#title'])) {
-    $checkbox = '<label class="option">'. $checkbox .' '. $element['#title'] .'</label>';
+    $checkbox = '<label class="option" for="'. $element['#id'] .'">'. $checkbox .' '. $element['#title'] .'</label>';
   }
 
   unset($element['#title']);
@@ -1915,7 +1926,15 @@ function expand_checkboxes($element) {
     }
     foreach ($element['#options'] as $key => $choice) {
       if (!isset($element[$key])) {
-        $element[$key] = array('#type' => 'checkbox', '#processed' => TRUE, '#title' => $choice, '#return_value' => $key, '#default_value' => isset($value[$key]), '#attributes' => $element['#attributes']);
+        $element[$key] = array(
+          '#type' => 'checkbox',
+          '#processed' => TRUE,
+          '#title' => $choice,
+          '#return_value' => $key,
+          '#default_value' => isset($value[$key]),
+          '#attributes' => $element['#attributes'],
+          '#ahah' => isset($element['#ahah']) ? $element['#ahah'] : NULL,
+        );
       }
     }
   }

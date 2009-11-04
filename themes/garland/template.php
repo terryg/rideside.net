@@ -1,5 +1,5 @@
 <?php
-// $Id: template.php,v 1.16 2007/10/11 09:51:29 goba Exp $
+// $Id: template.php,v 1.16.2.2 2009/08/10 11:32:54 goba Exp $
 
 /**
  * Sets the body-tag class attribute.
@@ -38,18 +38,6 @@ function phptemplate_breadcrumb($breadcrumb) {
 }
 
 /**
- * Allow themable wrapping of all comments.
- */
-function phptemplate_comment_wrapper($content, $node) {
-  if (!$content || $node->type == 'forum') {
-    return '<div id="comments">'. $content .'</div>';
-  }
-  else {
-    return '<div id="comments"><h2 class="comments">'. t('Comments') .'</h2>'. $content .'</div>';
-  }
-}
-
-/**
  * Override or insert PHPTemplate variables into the templates.
  */
 function phptemplate_preprocess_page(&$vars) {
@@ -58,6 +46,15 @@ function phptemplate_preprocess_page(&$vars) {
   // Hook into color.module
   if (module_exists('color')) {
     _color_page_alter($vars);
+  }
+}
+
+/**
+ * Add a "Comments" heading above comments except on forum pages.
+ */
+function garland_preprocess_comment_wrapper(&$vars) {
+  if ($vars['content'] && $vars['node']->type != 'forum') {
+    $vars['content'] = '<h2 class="comments">'. t('Comments') .'</h2>'.  $vars['content'];
   }
 }
 
@@ -94,7 +91,7 @@ function phptemplate_get_ie_styles() {
   global $language;
 
   $iecss = '<link type="text/css" rel="stylesheet" media="all" href="'. base_path() . path_to_theme() .'/fix-ie.css" />';
-  if (defined('LANGUAGE_RTL') && $language->direction == LANGUAGE_RTL) {
+  if ($language->direction == LANGUAGE_RTL) {
     $iecss .= '<style type="text/css" media="all">@import "'. base_path() . path_to_theme() .'/fix-ie-rtl.css";</style>';
   }
 

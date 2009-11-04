@@ -1,5 +1,5 @@
 <?php
-// $Id: upload.module,v 1.197.2.3 2008/10/08 20:12:18 goba Exp $
+// $Id: upload.module,v 1.197.2.5 2009/09/16 17:54:19 goba Exp $
 
 /**
  * @file
@@ -256,8 +256,8 @@ function upload_form_alter(&$form, $form_state, $form_id) {
         $form['attachments']['wrapper'] += _upload_form($node);
         $form['#attributes']['enctype'] = 'multipart/form-data';
       }
+      $form['#submit'][] = 'upload_node_form_submit';
     }
-    $form['#submit'][] = 'upload_node_form_submit';
   }
 }
 
@@ -513,7 +513,7 @@ function _upload_form($node) {
  *
  * @ingroup themeable
  */
-function theme_upload_form_current(&$form) {
+function theme_upload_form_current($form) {
   $header = array('', t('Delete'), t('List'), t('Description'), t('Weight'), t('Size'));
   drupal_add_tabledrag('upload-attachments', 'order', 'sibling', 'upload-weight');
 

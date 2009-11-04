@@ -1,5 +1,5 @@
 <?php
-// $Id: bootstrap.inc,v 1.206.2.6 2008/10/22 19:26:01 goba Exp $
+// $Id: bootstrap.inc,v 1.206.2.13 2009/09/14 13:33:39 goba Exp $
 
 /**
  * @file
@@ -132,6 +132,16 @@ define('LANGUAGE_NEGOTIATION_PATH', 2);
 define('LANGUAGE_NEGOTIATION_DOMAIN', 3);
 
 /**
+ * Language written left to right. Possible value of $language->direction.
+ */
+define('LANGUAGE_LTR', 0);
+
+/**
+ * Language written right to left. Possible value of $language->direction.
+ */
+define('LANGUAGE_RTL', 1);
+
+/**
  * Start the timer with the specified name. If you start and stop
  * the same timer multiple times, the measured intervals will be
  * accumulated.
@@ -238,11 +248,6 @@ function conf_path($require_settings = TRUE, $reset = FALSE) {
 
   $confdir = 'sites';
   $uri = explode('/', $_SERVER['SCRIPT_NAME'] ? $_SERVER['SCRIPT_NAME'] : $_SERVER['SCRIPT_FILENAME']);
-  if (strpos($_SERVER['HTTP_HOST'], '/') !== FALSE) {
-    // A HTTP_HOST containing slashes may be an attack and is invalid.
-    header('HTTP/1.1 400 Bad Request');
-    exit;
-  }
   $server = explode('.', implode('.', array_reverse(explode(':', rtrim($_SERVER['HTTP_HOST'], '.')))));
   for ($i = count($uri) - 1; $i > 0; $i--) {
     for ($j = count($server); $j > 0; $j--) {
@@ -272,6 +277,20 @@ function drupal_unset_globals() {
 }
 
 /**
+ * Validate that a hostname (for example $_SERVER['HTTP_HOST']) is safe.
+ *
+ * As $_SERVER['HTTP_HOST'] is user input, ensure it only contains characters
+ * allowed in hostnames.  See RFC 952 (and RFC 2181). $_SERVER['HTTP_HOST'] is
+ * lowercased.
+ *
+ * @return
+ *  TRUE if only containing valid characters, or FALSE otherwise.
+ */
+function drupal_valid_http_host($host) {
+  return preg_match('/^\[?(?:[a-z0-9-:\]_]+\.?)+$/', $host);
+}
+
+/**
  * Loads the configuration and sets the base URL, cookie domain, and
  * session name correctly.
  */
@@ -281,6 +300,23 @@ function conf_init() {
   // Export the following settings.php variables to the global namespace
   global $db_url, $db_prefix, $cookie_domain, $conf, $installed_profile, $update_free_access;
   $conf = array();
+
+  if (isset($_SERVER['HTTP_HOST'])) {
+    // As HTTP_HOST is user input, ensure it only contains characters allowed
+    // in hostnames. See RFC 952 (and RFC 2181).
+    // $_SERVER['HTTP_HOST'] is lowercased here per specifications.
+    $_SERVER['HTTP_HOST'] = strtolower($_SERVER['HTTP_HOST']);
+    if (!drupal_valid_http_host($_SERVER['HTTP_HOST'])) {
+      // HTTP_HOST is invalid, e.g. if containing slashes it may be an attack.
+      header('HTTP/1.1 400 Bad Request');
+      exit;
+    }
+  }
+  else {
+    // Some pre-HTTP/1.1 clients will not send a Host header. Ensure the key is
+    // defined for E_ALL compliance.
+    $_SERVER['HTTP_HOST'] = '';
+  }
 
   if (file_exists('./'. conf_path() .'/settings.php')) {
     include_once './'. conf_path() .'/settings.php';
@@ -305,9 +341,7 @@ function conf_init() {
     // Create base URL
     $base_root = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 
-    // As $_SERVER['HTTP_HOST'] is user input, ensure it only contains
-    // characters allowed in hostnames.
-    $base_url = $base_root .= '://'. preg_replace('/[^a-z0-9-:._]/i', '', $_SERVER['HTTP_HOST']);
+    $base_url = $base_root .= '://'. $_SERVER['HTTP_HOST'];
 
     // $_SERVER['SCRIPT_NAME'] can, in contrast to $_SERVER['PHP_SELF'], not
     // be modified by a visitor.
@@ -462,6 +496,8 @@ function variable_init($conf = array()) {
  *   The default value to use if this variable has never been set.
  * @return
  *   The value of the variable.
+ *
+ * @see variable_del(), variable_set()
  */
 function variable_get($name, $default) {
   global $conf;
@@ -477,6 +513,8 @@ function variable_get($name, $default) {
  * @param $value
  *   The value to set. This can be any PHP data type; these functions take care
  *   of serialization as necessary.
+ *
+ * @see variable_del(), variable_get()
  */
 function variable_set($name, $value) {
   global $conf;
@@ -497,6 +535,8 @@ function variable_set($name, $value) {
  *
  * @param $name
  *   The name of the variable to undefine.
+ *
+ * @see variable_get(), variable_set()
  */
 function variable_del($name) {
   global $conf;
@@ -527,7 +567,7 @@ function page_get_cache($status_only = FALSE) {
   }
   $cache = NULL;
 
-  if (!$user->uid && $_SERVER['REQUEST_METHOD'] == 'GET' && count(drupal_set_message()) == 0) {
+  if (!$user->uid && $_SERVER['REQUEST_METHOD'] == 'GET' && count(drupal_set_message()) == 0 && $_SERVER['SERVER_SOFTWARE'] !== 'PHP CLI') {
     $cache = cache_get($base_root . request_uri(), 'cache_page');
 
     if (empty($cache)) {
@@ -757,6 +797,8 @@ function request_uri() {
       $uri = $_SERVER['SCRIPT_NAME'];
     }
   }
+  // Prevent multiple slashes to avoid cross site requests via the FAPI.
+  $uri = '/'. ltrim($uri, '/');
 
   return $uri;
 }
@@ -998,13 +1040,13 @@ function _drupal_bootstrap($phase) {
     case DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
       // Initialize configuration variables, using values from settings.php if available.
       $conf = variable_init(isset($conf) ? $conf : array());
-      // Load module handling.
-      require_once './includes/module.inc';
       $cache_mode = variable_get('cache', CACHE_DISABLED);
       // Get the page from the cache.
       $cache = $cache_mode == CACHE_DISABLED ? '' : page_get_cache();
       // If the skipping of the bootstrap hooks is not enforced, call hook_boot.
-      if ($cache_mode != CACHE_AGGRESSIVE) {
+      if (!$cache || $cache_mode != CACHE_AGGRESSIVE) {
+        // Load module handling.
+        require_once './includes/module.inc';
         bootstrap_invoke_all('boot');
       }
       // If there is a cached page, display it.

@@ -1,5 +1,5 @@
 <?php
-// $Id: search.module,v 1.250.2.4 2008/09/17 06:42:20 goba Exp $
+// $Id: search.module,v 1.250.2.7 2009/09/14 14:55:09 goba Exp $
 
 /**
  * @file
@@ -637,7 +637,10 @@ function search_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       while ($link = db_fetch_object($result)) {
         $output[] = $link->caption;
       }
-      return '<a>('. implode(', ', $output) .')</a>';
+      if (count($output)) {
+        return '<a>('. implode(', ', $output) .')</a>';
+      }
+      break;
     // Reindex the node when it is updated.  The node is automatically indexed
     // when it is added, simply by being added to the node table.
     case 'update':
@@ -1078,6 +1081,17 @@ function search_box(&$form_state, $form_id) {
  * Process a block search form submission.
  */
 function search_box_form_submit($form, &$form_state) {
+  // The search form relies on control of the redirect destination for its
+  // functionality, so we override any static destination set in the request,
+  // for example by drupal_access_denied() or drupal_not_found()
+  // (see http://drupal.org/node/292565).
+  if (isset($_REQUEST['destination'])) {
+    unset($_REQUEST['destination']);
+  }
+  if (isset($_REQUEST['edit']['destination'])) {
+    unset($_REQUEST['edit']['destination']);
+  }
+
   $form_id = $form['form_id']['#value'];
   $form_state['redirect'] = 'search/node/'. trim($form_state['values'][$form_id]);
 }

@@ -1,5 +1,5 @@
 <?php
-// $Id: node.admin.inc,v 1.19.2.1 2008/03/21 22:01:05 goba Exp $
+// $Id: node.admin.inc,v 1.19.2.3 2009/06/08 16:45:34 goba Exp $
 
 /**
  * @file
@@ -10,23 +10,19 @@
  * Menu callback; presents general node configuration options.
  */
 function node_configure() {
-  // Only show rebuild button if there are either 0, or 2 or more, rows
-  // in the {node_access} table, or if there are modules that
-  // implement hook_node_grants().
-  if (db_result(db_query('SELECT COUNT(*) FROM {node_access}')) != 1 || count(module_implements('node_grants')) > 0) {
-    $status = '<p>'. t('If the site is experiencing problems with permissions to content, you may have to rebuild the permissions cache. Possible causes for permission problems are disabling modules or configuration changes to permissions. Rebuilding will remove all privileges to posts, and replace them with permissions based on the current modules and settings.') .'</p>';
-    $status .= '<p>'. t('Rebuilding may take some time if there is a lot of content or complex permission settings. After rebuilding has completed posts will automatically use the new permissions.') .'</p>';
+  $status = '<p>'. t('If the site is experiencing problems with permissions to content, you may have to rebuild the permissions cache. Possible causes for permission problems are disabling modules or configuration changes to permissions. Rebuilding will remove all privileges to posts, and replace them with permissions based on the current modules and settings.') .'</p>';
+  $status .= '<p>'. t('Rebuilding may take some time if there is a lot of content or complex permission settings. After rebuilding has completed posts will automatically use the new permissions.') .'</p>';
 
-    $form['access'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Node access status'),
-    );
-    $form['access']['status'] = array('#value' => $status);
-    $form['access']['rebuild'] = array(
-      '#type' => 'submit',
-      '#value' => t('Rebuild permissions'),
-    );
-  }
+  $form['access'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Node access status'),
+  );
+  $form['access']['status'] = array('#value' => $status);
+  $form['access']['rebuild'] = array(
+    '#type' => 'submit',
+    '#value' => t('Rebuild permissions'),
+    '#submit' => array('node_configure_access_submit'),
+  );
 
   $form['default_nodes_main'] = array(
     '#type' => 'select', '#title' => t('Number of posts on main page'), '#default_value' => variable_get('default_nodes_main', 10),
@@ -59,18 +55,14 @@ function node_configure() {
     '#description' => t('Must users preview posts before submitting?'),
   );
 
-  $form['#validate'] = array('node_configure_validate');
-
   return system_settings_form($form);
 }
 
 /**
- * Form validate callback.
+ * Form button submit callback.
  */
-function node_configure_validate($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Rebuild permissions')) {
-    drupal_goto('admin/content/node-settings/rebuild');
-  }
+function node_configure_access_submit($form, &$form_state) {
+  $form_state['redirect'] = 'admin/content/node-settings/rebuild';
 }
 
 /**
@@ -87,7 +79,6 @@ function node_configure_rebuild_confirm() {
 function node_configure_rebuild_confirm_submit($form, &$form_state) {
   node_access_rebuild(TRUE);
   $form_state['redirect'] = 'admin/content/node-settings';
-  return;
 }
 
 /**

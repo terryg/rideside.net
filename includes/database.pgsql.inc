@@ -1,5 +1,5 @@
 <?php
-// $Id: database.pgsql.inc,v 1.68.2.2 2008/07/08 09:50:03 goba Exp $
+// $Id: database.pgsql.inc,v 1.68.2.7 2009/09/14 10:49:34 goba Exp $
 
 /**
  * @file
@@ -85,6 +85,7 @@ function db_connect($url) {
   // Restore error tracking setting
   ini_set('track_errors', $track_errors_previous);
 
+  pg_query($connection, "set client_encoding=\"UTF8\"");
   return $connection;
 }
 
@@ -473,7 +474,7 @@ function db_type_map() {
     'blob:big' => 'bytea',
     'blob:normal' => 'bytea',
 
-    'datetime:normal' => 'timestamp',
+    'datetime:normal' => 'timestamp without time zone',
 
     'serial:tiny' => 'serial',
     'serial:small' => 'serial',
@@ -610,7 +611,7 @@ function _db_create_field_sql($name, $spec) {
     }
   }
 
-  if (!empty($spec['length'])) {
+  if (in_array($spec['type'], array('varchar', 'char', 'text')) && isset($spec['length'])) {
     $sql .= '('. $spec['length'] .')';
   }
   elseif (isset($spec['precision']) && isset($spec['scale'])) {
@@ -905,13 +906,24 @@ function db_drop_index(&$ret, $table, $name) {
  *   table specification but without the 'fields' element.
  */
 function db_change_field(&$ret, $table, $field, $field_new, $spec, $new_keys = array()) {
-  $ret[] = update_sql("ALTER TABLE {". $table ."} RENAME $field TO ". $field ."_old");
+  $ret[] = update_sql('ALTER TABLE {'. $table .'} RENAME "'. $field .'" TO "'. $field .'_old"');
   $not_null = isset($spec['not null']) ? $spec['not null'] : FALSE;
   unset($spec['not null']);
 
+  if (!array_key_exists('size', $spec)) {
+    $spec['size'] = 'normal';
+  }
   db_add_field($ret, $table, "$field_new", $spec);
 
-  $ret[] = update_sql("UPDATE {". $table ."} SET $field_new = ". $field ."_old");
+  // We need to type cast the new column to best transfer the data
+  // db_type_map will return possiblities that are not 'cast-able'
+  // such as serial - they must be made 'int' instead.
+  $map =  db_type_map();
+  $typecast = $map[$spec['type'] .':'. $spec['size']];
+  if (in_array($typecast, array('serial', 'bigserial', 'numeric'))) {
+    $typecast = 'int';
+  }
+  $ret[] = update_sql('UPDATE {'. $table .'} SET '. $field_new .' = CAST('. $field .'_old AS '. $typecast .')');
 
   if ($not_null) {
     $ret[] = update_sql("ALTER TABLE {". $table ."} ALTER $field_new SET NOT NULL");

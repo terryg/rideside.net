@@ -1,5 +1,5 @@
 <?php
-// $Id: common.inc,v 1.756.2.29 2008/10/22 19:26:01 goba Exp $
+// $Id: common.inc,v 1.756.2.69 2009/09/16 19:34:14 goba Exp $
 
 /**
  * @file
@@ -25,6 +25,13 @@ define('SAVED_UPDATED', 2);
 define('SAVED_DELETED', 3);
 
 /**
+ * Create E_DEPRECATED constant for older PHP versions (<5.3).
+ */
+if (!defined('E_DEPRECATED')) {
+  define('E_DEPRECATED', 8192);
+}
+
+/**
  * Set content for a specified region.
  *
  * @param $region
@@ -48,7 +55,7 @@ function drupal_set_content($region = NULL, $data = NULL) {
  *   A specified region to fetch content for. If NULL, all regions will be
  *   returned.
  * @param $delimiter
- *   Content to be inserted between exploded array elements.
+ *   Content to be inserted between imploded array elements.
  */
 function drupal_get_content($region = NULL, $delimiter = ' ') {
   $content = drupal_set_content();
@@ -152,6 +159,15 @@ function drupal_get_headers() {
 }
 
 /**
+ * Make any final alterations to the rendered xhtml.
+ */
+function drupal_final_markup($content) {
+  // Make sure that the charset is always specified as the first element of the
+  // head region to prevent encoding-based attacks.
+  return preg_replace('/<head[^>]*>/i', "\$0\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />", $content, 1);
+}
+
+/**
  * Add a feed URL for the current page.
  *
  * @param $url
@@ -207,7 +223,7 @@ function drupal_query_string_encode($query, $exclude = array(), $parent = '') {
   $params = array();
 
   foreach ($query as $key => $value) {
-    $key = drupal_urlencode($key);
+    $key = rawurlencode($key);
     if ($parent) {
       $key = $parent .'['. $key .']';
     }
@@ -220,7 +236,7 @@ function drupal_query_string_encode($query, $exclude = array(), $parent = '') {
       $params[] = drupal_query_string_encode($value, $exclude, $key);
     }
     else {
-      $params[] = $key .'='. drupal_urlencode($value);
+      $params[] = $key .'='. rawurlencode($value);
     }
   }
 
@@ -343,7 +359,7 @@ function drupal_not_found() {
 
   watchdog('page not found', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
 
-  // Keep old path for reference.
+  // Keep old path for reference, and to allow forms to redirect to it.
   if (!isset($_REQUEST['destination'])) {
     $_REQUEST['destination'] = $_GET['q'];
   }
@@ -370,9 +386,10 @@ function drupal_not_found() {
  */
 function drupal_access_denied() {
   drupal_set_header('HTTP/1.1 403 Forbidden');
+
   watchdog('access denied', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
 
-  // Keep old path for reference.
+  // Keep old path for reference, and to allow forms to redirect to it.
   if (!isset($_REQUEST['destination'])) {
     $_REQUEST['destination'] = $_GET['q'];
   }
@@ -414,34 +431,22 @@ function drupal_access_denied() {
  *   data and redirect status.
  */
 function drupal_http_request($url, $headers = array(), $method = 'GET', $data = NULL, $retry = 3) {
-  static $self_test = FALSE;
+  global $db_prefix;
+
   $result = new stdClass();
-  // Try to clear the drupal_http_request_fails variable if it's set. We
-  // can't tie this call to any error because there is no surefire way to
-  // tell whether a request has failed, so we add the check to places where
-  // some parsing has failed.
-  if (!$self_test && variable_get('drupal_http_request_fails', FALSE)) {
-    $self_test = TRUE;
-    $works = module_invoke('system', 'check_http_request');
-    $self_test = FALSE;
-    if (!$works) {
-      // Do not bother with further operations if we already know that we
-      // have no chance.
-      $result->error = t("The server can't issue HTTP requests");
-      return $result;
-    }
-  }
 
   // Parse the URL and make sure we can handle the schema.
   $uri = parse_url($url);
 
   if ($uri == FALSE) {
     $result->error = 'unable to parse URL';
+    $result->code = -1001;
     return $result;
   }
 
   if (!isset($uri['scheme'])) {
     $result->error = 'missing schema';
+    $result->code = -1002;
     return $result;
   }
 
@@ -459,6 +464,7 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
       break;
     default:
       $result->error = 'invalid schema '. $uri['scheme'];
+      $result->code = -1003;
       return $result;
   }
 
@@ -468,6 +474,13 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
     // clash with the HTTP status codes.
     $result->code = -$errno;
     $result->error = trim($errstr);
+
+    // Mark that this request failed. This will trigger a check of the web
+    // server's ability to make outgoing HTTP requests the next time that
+    // requirements checking is performed.
+    // @see system_requirements()
+    variable_set('drupal_http_request_fails', TRUE);
+
     return $result;
   }
 
@@ -484,12 +497,30 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
     // host that do not take into account the port number.
     'Host' => "Host: $host",
     'User-Agent' => 'User-Agent: Drupal (+http://drupal.org/)',
-    'Content-Length' => 'Content-Length: '. strlen($data)
   );
+
+  // Only add Content-Length if we actually have any content or if it is a POST
+  // or PUT request. Some non-standard servers get confused by Content-Length in
+  // at least HEAD/GET requests, and Squid always requires Content-Length in
+  // POST/PUT requests.
+  $content_length = strlen($data);
+  if ($content_length > 0 || $method == 'POST' || $method == 'PUT') {
+    $defaults['Content-Length'] = 'Content-Length: '. $content_length;
+  }
 
   // If the server url has a user then attempt to use basic authentication
   if (isset($uri['user'])) {
     $defaults['Authorization'] = 'Authorization: Basic '. base64_encode($uri['user'] . (!empty($uri['pass']) ? ":". $uri['pass'] : ''));
+  }
+
+  // If the database prefix is being used by SimpleTest to run the tests in a copied
+  // database then set the user-agent header to the database prefix so that any
+  // calls to other Drupal pages will run the SimpleTest prefixed database. The
+  // user-agent is used to ensure that multiple testing sessions running at the
+  // same time won't interfere with each other as they would if the database
+  // prefix were stored statically in a file or database variable.
+  if (is_string($db_prefix) && preg_match("/^simpletest\d+$/", $db_prefix, $matches)) {
+    $defaults['User-Agent'] = 'User-Agent: ' . $matches[0];
   }
 
   foreach ($headers as $header => $value) {
@@ -499,9 +530,8 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
   $request = $method .' '. $path ." HTTP/1.0\r\n";
   $request .= implode("\r\n", $defaults);
   $request .= "\r\n\r\n";
-  if ($data) {
-    $request .= $data ."\r\n";
-  }
+  $request .= $data;
+
   $result->request = $request;
 
   fwrite($fp, $request);
@@ -587,7 +617,7 @@ function drupal_error_handler($errno, $message, $filename, $line, $context) {
     return;
   }
 
-  if ($errno & (E_ALL ^ E_NOTICE)) {
+  if ($errno & (E_ALL ^ E_NOTICE ^ E_DEPRECATED)) {
     $types = array(1 => 'error', 2 => 'warning', 4 => 'parse error', 8 => 'notice', 16 => 'core error', 32 => 'core warning', 64 => 'compile error', 128 => 'compile warning', 256 => 'user error', 512 => 'user warning', 1024 => 'user notice', 2048 => 'strict warning', 4096 => 'recoverable fatal error');
 
     // For database errors, we want the line number/file name of the place that
@@ -665,7 +695,7 @@ function fix_gpc_magic() {
 /**
  * Translate strings to the page language or a given language.
  *
- * All human-readable text that will be displayed somewhere within a page should
+ * Human-readable text that will be displayed somewhere within a page should
  * be run through the t() function.
  *
  * Examples:
@@ -685,8 +715,8 @@ function fix_gpc_magic() {
  *
  * Special variables called "placeholders" are used to signal dynamic
  * information in a string which should not be translated. Placeholders
- * can also be used for text that may change from time to time
- * (such as link paths) to be changed without requiring updates to translations.
+ * can also be used for text that may change from time to time (such as
+ * link paths) to be changed without requiring updates to translations.
  *
  * For example:
  * @code
@@ -702,9 +732,9 @@ function fix_gpc_magic() {
  *     $message[] = t("If you don't want to receive such e-mails, you can change your settings at !url.", array('!url' => url("user/$account->uid", array('absolute' => TRUE))));
  *   @endcode
  *
- * - @variable, which indicates that the text should be run through check_plain,
- *   to escape HTML characters. Use this for any output that's displayed within
- *   a Drupal page.
+ * - @variable, which indicates that the text should be run through
+ *   check_plain, to escape HTML characters. Use this for any output that's
+ *   displayed within a Drupal page.
  *   @code
  *     drupal_set_title($title = t("@name's blog", array('@name' => $account->name)));
  *   @endcode
@@ -717,10 +747,10 @@ function fix_gpc_magic() {
  *   @endcode
  *
  * When using t(), try to put entire sentences and strings in one t() call.
- * This makes it easier for translators, as it provides context as to what each
- * word refers to. HTML markup within translation strings is allowed, but should
- * be avoided if possible. The exception are embedded links; link titles add a
- * context for translators, so should be kept in the main string.
+ * This makes it easier for translators, as it provides context as to what
+ * each word refers to. HTML markup within translation strings is allowed, but
+ * should be avoided if possible. The exception are embedded links; link
+ * titles add a context for translators, so should be kept in the main string.
  *
  * Here is an example of incorrect usage of t():
  * @code
@@ -732,7 +762,7 @@ function fix_gpc_magic() {
  *   $output .= '<p>'. t('Go to the <a href="@contact-page">contact page</a>.', array('@contact-page' => url('contact'))) .'</p>';
  * @endcode
  *
- * Also avoid escaping quotation marks wherever possible.
+ * Avoid escaping quotation marks wherever possible.
  *
  * Incorrect:
  * @code
@@ -744,12 +774,107 @@ function fix_gpc_magic() {
  *   $output .= t("Don't click me.");
  * @endcode
  *
+ * Because t() is designed for handling code-based strings, in almost all
+ * cases, the actual string and not a variable must be passed through t().
+ *
+ * Extraction of translations is done based on the strings contained in t()
+ * calls. If a variable is passed through t(), the content of the variable
+ * cannot be extracted from the file for translation.
+ *
+ * Incorrect:
+ * @code
+ *   $message = 'An error occurred.';
+ *   drupal_set_message(t($message), 'error');
+ *   $output .= t($message);
+ * @endcode
+ *
+ * Correct:
+ * @code
+ *   $message = t('An error occurred.');
+ *   drupal_set_message($message, 'error');
+ *   $output .= $message;
+ * @endcode
+ *
+ * The only case in which variables can be passed safely through t() is when
+ * code-based versions of the same strings will be passed through t() (or
+ * otherwise extracted) elsewhere.
+ *
+ * In some cases, modules may include strings in code that can't use t()
+ * calls. For example, a module may use an external PHP application that
+ * produces strings that are loaded into variables in Drupal for output.
+ * In these cases, module authors may include a dummy file that passes the
+ * relevant strings through t(). This approach will allow the strings to be
+ * extracted.
+ *
+ * Sample external (non-Drupal) code:
+ * @code
+ *   class Time {
+ *     public $yesterday = 'Yesterday';
+ *     public $today = 'Today';
+ *     public $tomorrow = 'Tomorrow';
+ *   }
+ * @endcode
+ *
+ * Sample dummy file.
+ * @code
+ *   // Dummy function included in example.potx.inc.
+ *   function example_potx() {
+ *     $strings = array(
+ *       t('Yesterday'),
+ *       t('Today'),
+ *       t('Tomorrow'),
+ *     );
+ *     // No return value needed, since this is a dummy function.
+ *   }
+ * @endcode
+ *
+ * Having passed strings through t() in a dummy function, it is then
+ * okay to pass variables through t().
+ *
+ * Correct (if a dummy file was used):
+ * @code
+ *   $time = new Time();
+ *   $output .= t($time->today);
+ * @endcode
+ *
+ * However tempting it is, custom data from user input or other non-code
+ * sources should not be passed through t(). Doing so leads to the following
+ * problems and errors:
+ *  - The t() system doesn't support updates to existing strings. When user
+ *    data is updated, the next time it's passed through t() a new record is
+ *    created instead of an update. The database bloats over time and any
+ *    existing translations are orphaned with each update.
+ *  - The t() system assumes any data it receives is in English. User data may
+ *    be in another language, producing translation errors.
+ *  - The "Built-in interface" text group in the locale system is used to
+ *    produce translations for storage in .po files. When non-code strings are
+ *    passed through t(), they are added to this text group, which is rendered
+ *    inaccurate since it is a mix of actual interface strings and various user
+ *    input strings of uncertain origin.
+ *
+ * Incorrect:
+ * @code
+ *   $item = item_load();
+ *   $output .= check_plain(t($item['title']));
+ * @endcode
+ *
+ * Instead, translation of these data can be done through the locale system,
+ * either directly or through helper functions provided by contributed
+ * modules.
+ * @see hook_locale()
+ *
+ * During installation, st() is used in place of t(). Code that may be called
+ * during installation or during normal operation should use the get_t()
+ * helper function.
+ * @see st()
+ * @see get_t()
+ *
  * @param $string
  *   A string containing the English string to translate.
  * @param $args
  *   An associative array of replacements to make after translation. Incidences
- *   of any key in this array are replaced with the corresponding value.
- *   Based on the first character of the key, the value is escaped and/or themed:
+ *   of any key in this array are replaced with the corresponding value. Based
+ *   on the first character of the key, the value is escaped and/or themed:
  *    - !variable: inserted as is
  *    - @variable: escape plain text to HTML (check_plain)
  *    - %variable: escape text and theme as a placeholder for user-submitted
@@ -837,6 +962,7 @@ function valid_email_address($mail) {
  *
  * This function should only be used on actual URLs. It should not be used for
  * Drupal menu paths, which can contain arbitrary characters.
+ * Valid values per RFC 3986.
  *
  * @param $url
  *   The URL to verify.
@@ -846,14 +972,29 @@ function valid_email_address($mail) {
  *   TRUE if the URL is in a valid format.
  */
 function valid_url($url, $absolute = FALSE) {
-  $allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
   if ($absolute) {
-    return preg_match("/^(http|https|ftp):\/\/". $allowed_characters ."+$/i", $url);
+    return (bool)preg_match("
+      /^                                                      # Start at the beginning of the text
+      (?:ftp|https?):\/\/                                     # Look for ftp, http, or https schemes
+      (?:                                                     # Userinfo (optional) which is typically
+        (?:(?:[\w\.\-\+!$&'\(\)*\+,;=]|%[0-9a-f]{2})+:)*      # a username or a username and password
+        (?:[\w\.\-\+%!$&'\(\)*\+,;=]|%[0-9a-f]{2})+@          # combination
+      )?
+      (?:
+        (?:[a-z0-9\-\.]|%[0-9a-f]{2})+                        # A domain name or a IPv4 address
+        |(?:\[(?:[0-9a-f]{0,4}:)*(?:[0-9a-f]{0,4})\])         # or a well formed IPv6 address
+      )
+      (?::[0-9]+)?                                            # Server port number (optional)
+      (?:[\/|\?]
+        (?:[\w#!:\.\?\+=&@$'~*,;\/\(\)\[\]\-]|%[0-9a-f]{2})   # The path and query (optional)
+      *)?
+    $/xi", $url);
   }
   else {
-    return preg_match("/^". $allowed_characters ."+$/i", $url);
+    return (bool)preg_match("/^(?:[\w#!:\.\?\+=&@$'~*,;\/\(\)\[\]\-]|%[0-9a-f]{2})+$/i", $url);
   }
 }
+
 
 /**
  * @} End of "defgroup validation".
@@ -877,7 +1018,7 @@ function flood_register_event($name) {
  *
  * @param $name
  *   The name of the event.
- * @param $number
+ * @param $threshold
  *   The maximum number of the specified event per hour (per visitor).
  * @return
  *   True if the user did not exceed the hourly threshold. False otherwise.
@@ -1236,8 +1377,8 @@ function format_date($timestamp, $type = 'medium', $format = '', $timezone = NUL
  * @param $options
  *   An associative array of additional options, with the following keys:
  *   - 'query'
- *       A query string to append to the link, or an array of query key/value
- *       properties.
+ *       A URL-encoded query string to append to the link, or an array of query
+ *       key/value-pairs without any URL-encoding.
  *   - 'fragment'
  *       A fragment identifier (or named anchor) to append to the link.
  *       Do not include the '#' character.
@@ -1310,18 +1451,12 @@ function url($path = NULL, $options = array()) {
 
   global $base_url;
   static $script;
-  static $clean_url;
 
   if (!isset($script)) {
     // On some web servers, such as IIS, we can't omit "index.php". So, we
     // generate "index.php?q=foo" instead of "?q=foo" on anything that is not
     // Apache.
     $script = (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') === FALSE) ? 'index.php' : '';
-  }
-
-  // Cache the clean_url variable to improve performance.
-  if (!isset($clean_url)) {
-    $clean_url = (bool)variable_get('clean_url', '0');
   }
 
   if (!isset($options['base_url'])) {
@@ -1349,7 +1484,7 @@ function url($path = NULL, $options = array()) {
   $prefix = empty($path) ? rtrim($options['prefix'], '/') : $options['prefix'];
   $path = drupal_urlencode($prefix . $path);
 
-  if ($clean_url) {
+  if (variable_get('clean_url', '0')) {
     // With Clean URLs.
     if ($options['query']) {
       return $base . $path .'?'. $options['query'] . $options['fragment'];
@@ -1438,6 +1573,8 @@ function drupal_attributes($attributes = array()) {
  *   an HTML string containing a link to the given path.
  */
 function l($text, $path, $options = array()) {
+  global $language;
+
   // Merge in defaults.
   $options += array(
       'attributes' => array(),
@@ -1445,7 +1582,8 @@ function l($text, $path, $options = array()) {
     );
 
   // Append active class.
-  if ($path == $_GET['q'] || ($path == '<front>' && drupal_is_front_page())) {
+  if (($path == $_GET['q'] || ($path == '<front>' && drupal_is_front_page())) &&
+      (empty($options['language']) || $options['language']->language == $language->language)) {
     if (isset($options['attributes']['class'])) {
       $options['attributes']['class'] .= ' active';
     }
@@ -1656,7 +1794,7 @@ function drupal_add_css($path = NULL, $type = 'module', $media = 'all', $preproc
     $css[$media][$type][$path] = $preprocess;
 
     // If the current language is RTL, add the CSS file with RTL overrides.
-    if (defined('LANGUAGE_RTL') && $language->direction == LANGUAGE_RTL) {
+    if ($language->direction == LANGUAGE_RTL) {
       $rtl_path = str_replace('.css', '-rtl.css', $path);
       if (file_exists($rtl_path)) {
         $css[$media][$type][$rtl_path] = $preprocess;
@@ -1748,7 +1886,9 @@ function drupal_get_css($css = NULL) {
     }
 
     if ($is_writable && $preprocess_css) {
-      $filename = md5(serialize($types) . $query_string) .'.css';
+      // Prefix filename to prevent blocking by firewalls which reject files
+      // starting with "ad*".
+      $filename = 'css_'. md5(serialize($types) . $query_string) .'.css';
       $preprocess_file = drupal_build_css_cache($types, $filename);
       $output .= '<link type="text/css" rel="stylesheet" media="'. $media .'" href="'. base_path() . $preprocess_file .'" />'."\n";
     }
@@ -1820,7 +1960,7 @@ function _drupal_build_css_path($matches, $base = NULL) {
   $last = '';
   while ($path != $last) {
     $last = $path;
-    $path = preg_replace('`(^|/)(?!../)([^/]+)/../`', '$1', $path);
+    $path = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $path);
   }
   return 'url('. $path .')';
 }
@@ -2096,7 +2236,9 @@ function drupal_get_js($scope = 'header', $javascript = NULL) {
 
   // Aggregate any remaining JS files that haven't already been output.
   if ($is_writable && $preprocess_js && count($files) > 0) {
-    $filename = md5(serialize($files) . $query_string) .'.js';
+    // Prefix filename to prevent blocking by firewalls which reject files
+    // starting with "ad*".
+    $filename = 'js_'. md5(serialize($files) . $query_string) .'.js';
     $preprocess_file = drupal_build_js_cache($files, $filename);
     $preprocessed .= '<script type="text/javascript" src="'. base_path() . $preprocess_file .'"></script>'."\n";
   }
@@ -2350,6 +2492,8 @@ function drupal_json($var = NULL) {
  *   characters are double escaped so PHP will still see the encoded version.
  * - With clean URLs, Apache changes '//' to '/', so every second slash is
  *   double escaped.
+ * - This function should only be used on paths, not on query string arguments,
+ *   otherwise unwanted double encoding will occur.
  *
  * @param $text
  *   String to encode
@@ -2516,9 +2660,9 @@ function page_set_cache() {
  * Returns TRUE if ran successfully
  */
 function drupal_cron_run() {
-  // If not in 'safe mode', increase the maximum execution time:
-  if (!ini_get('safe_mode')) {
-    set_time_limit(240);
+  // Try to allocate enough time to run all the hook_cron implementations.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit($time_limit);
   }
 
   // Fetch the cron semaphore
@@ -2615,9 +2759,6 @@ function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1)
   $searchdir = array($directory);
   $files = array();
 
-  // Always search sites/all/* as well as the global directories
-  $searchdir[] = 'sites/all/'. $directory;
-
   // The 'profiles' directory contains pristine collections of modules and
   // themes as organized by a distribution.  It is pristine in the same way
   // that /modules is pristine for core; users should avoid changing anything
@@ -2625,6 +2766,9 @@ function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1)
   if (file_exists("profiles/$profile/$directory")) {
     $searchdir[] = "profiles/$profile/$directory";
   }
+
+  // Always search sites/all/* as well as the global directories
+  $searchdir[] = 'sites/all/'. $directory;
 
   if (file_exists("$config/$directory")) {
     $searchdir[] = "$config/$directory";
@@ -3537,7 +3681,16 @@ function drupal_flush_all_caches() {
 
   drupal_clear_css_cache();
   drupal_clear_js_cache();
-  system_theme_data();
+
+  // If invoked from update.php, we must not update the theme information in the
+  // database, or this will result in all themes being disabled.
+  if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'update') {
+    _system_theme_data();
+  }
+  else {
+    system_theme_data();
+  }
+
   drupal_rebuild_theme_registry();
   menu_rebuild();
   node_types_rebuild();
@@ -3562,7 +3715,8 @@ function drupal_flush_all_caches() {
 function _drupal_flush_css_js() {
   $string_history = variable_get('css_js_query_string', '00000000000000000000');
   $new_character = $string_history[0];
-  $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  // Not including 'q' to allow certain JavaScripts to re-use query string.
+  $characters = 'abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   while (strpos($string_history, $new_character) !== FALSE) {
     $new_character = $characters[mt_rand(0, strlen($characters) - 1)];
   }
