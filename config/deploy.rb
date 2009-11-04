@@ -11,7 +11,7 @@
 # form the root of the application path.
 
 set :application, "rideside.net"
-set :repository, "http://tgl.textdrive.com/svn/#{application}/trunk"
+set :repository, "http://tgl.textdriven.com/svn/#{application}/trunk"
 
 # =============================================================================
 # ROLES
@@ -66,7 +66,7 @@ end
 
 namespace :deploy do
   task :finalize_update, :except => { :no_release => true } do
-    run "chmod =R g+w #{latest_release}" if fetch(:group_writable, true)
+    run "chmod -R g+w #{latest_release}" if fetch(:group_writable, true)
   end
 
   task :restart do
