@@ -1,3 +1,5 @@
+// $Id: README.txt,v 1.4.2.3 2008/09/28 21:31:03 hass Exp $
+
 Module: Google Analytics
 Author: Mike Carter <www.ixis.co.uk/contact>
 
@@ -40,13 +42,14 @@ comes with an interface that copies Drupal's block visibility settings.
 The default is set to "Add to every page except the listed pages". By
 default the following pages are listed for exclusion:
 
-admin* 
-user* 
-node/add* 
+admin
+admin/*
+user/*/*
+node/add*
 node/*/*
 
 These defaults are changeable by the website administrator or any other
-user with 'administer google analytics' permission. 
+user with 'administer google analytics' permission.
 
 Like the blocks visibility settings in Drupal core, there is now a
 choice for "Add if the following PHP code returns TRUE." Sample PHP snippets
@@ -63,6 +66,6 @@ code textarea. These can be found on the official Google Analytics pages
 and a few examples at http://drupal.org/node/248699. Support is not
 provided for any customisations you include.
 
-To speed up page loading you may also cache the Analytics urchin.js/ga.js
+To speed up page loading you may also cache the Analytics ga.js
 file locally. You need to make sure the site file system is in public
 download mode.
