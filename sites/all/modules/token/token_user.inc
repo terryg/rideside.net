@@ -1,8 +1,21 @@
 <?php
-// $Id: token_user.inc,v 1.3.4.1 2007/10/29 04:40:41 eaton Exp $
+// $Id: token_user.inc,v 1.3.4.2 2008/06/28 15:10:22 greggles Exp $
 
 /**
- * Implementation of hook_token_values()
+ * @file
+ * Implementations of token module hooks for the core user module.
+ *
+ * The token module requires specific hooks to be added to modules
+ * so that those modules can return data about their objects to the
+ * token API.  Until and unless token becomes a part of core, the
+ * implementations of the token hooks for core modules are provided
+ * in the token module itself.
+ *
+ * @ingroup token
+ */
+
+/**
+ * Implementation of hook_token_values().
  */
 function user_token_values($type, $object = NULL, $options = array()) {
   $values = array();
@@ -34,7 +47,7 @@ function user_token_values($type, $object = NULL, $options = array()) {
 }
 
 /**
- * Implementation of hook_token_list()
+ * Implementation of hook_token_list().
  */
 function user_token_list($type = 'all') {
   if ($type == 'user' || $type == 'all') {
@@ -43,7 +56,7 @@ function user_token_list($type = 'all') {
 
     $tokens['user']['uid']            = t("User's ID");
     $tokens['user']['mail']           = t("User's email address");
- 
+
     $tokens['user']['reg-date']       = t("User's registration date");
     $tokens['user']['reg-since']      = t("Days since the user registered");
     $tokens['user']['log-date']       = t("User's last login date");
