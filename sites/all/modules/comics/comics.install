@@ -1,0 +1,32 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Comic module's install and uninstall code.
+ */
+
+/// Implement hook_install()
+function comics_install() {
+  drupal_install_schema('comics');
+}
+
+/// Implement hook_install()
+function comics_uninstall() {
+  drupal_uninstall_schema('comics');
+}
+
+/// Implement hook_schema()
+function comics_schema() {
+  $schema['comics'] = array(
+    'fields' => array(
+      'nid'      => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'strip'    => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
+      'urlname'    => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
+      'imglink'    => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
+      'imgname'    => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
+     ),
+    'primary key' => array('nid'),
+  );
+  return schema;
+}
