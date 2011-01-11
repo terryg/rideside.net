@@ -243,8 +243,14 @@ function theme_comics_show($node) {
     
   } else if ($node->imgname == '') {
     $today = getdate();
+   
+    $mon = $today['mon'];
 
-    $url = 'http://comics.com/'.$node->urlname.'/'.$today['year'].'-'.$today['mon'].'-'.$today['mday'];
+    if (strlen($mon) == 1) {
+      $mon = "0" . $mon;
+    }
+
+    $url = 'http://comics.com/'.$node->urlname.'/'.$today['year'].'-'.$mon.'-'.$today['mday'];
     
     $response = file_get_contents($url);
 
