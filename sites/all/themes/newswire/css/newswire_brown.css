@@ -1,0 +1,54 @@
+/* $Id: newswire_brown.css,v 1.2 2009/11/04 12:24:57 jmburnz Exp $ */
+
+/*****************************
+  Newswire Custom Tan styles.css
+  Theme by AdaptiveThemes.com
+
+  #2F1E00 very dark brown
+  #5F3C00 dark brown
+******************************/
+
+#search-box-top #edit-search-theme-form-1 {
+color:#5F3C00;
+border-color:#2F1E00;
+}
+
+#block-search-0 .form-submit,
+#search .form-submit {
+background-color:#5F3C00;
+border-color: #2F1E00;
+}
+
+#secondary-menu {
+border-color:#5F3C00;
+}
+
+#main-navigation {
+background: transparent url(images/brown-nav-bar.png) no-repeat left top;
+}
+
+#primary-menu ul.links li a,
+#suckerfish ul.menu li li a:link,
+#suckerfish ul.menu li li a:visited {
+background-color:#5F3C00;
+}
+
+#suckerfish ul.menu li ul a:active,
+#suckerfish ul.menu li ul a:hover {
+background-color:#2F1E00;
+}
+
+#suckerfish ul.menu li li.expanded a,
+#suckerfish ul.menu li li.expanded ul.menu a,
+#suckerfish ul.menu li li.expanded ul.menu li.expanded a {
+background-color:#5F3C00;
+}
+
+#suckerfish ul.menu li li.expanded a:active,
+#suckerfish ul.menu li li.expanded a:hover,
+#suckerfish ul.menu li li.expanded ul.menu a:active,
+#suckerfish ul.menu li li.expanded ul.menu a:hover,
+#suckerfish ul.menu li li.expanded ul.menu li.expanded a:active,
+#suckerfish ul.menu li li.expanded ul.menu li.expanded a:hover {
+background-color:#2F1E00;
+}

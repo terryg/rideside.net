@@ -1,0 +1,9 @@
+/**
+ * Ubiquity Drupal theme CSS hacks for IE
+ */
+
+/* IE6 breaks layout with this element, this is only an ugly workaround */
+#edit-wipe {position:absolute; float:left; clear:both;}
+
+/* Fixing image gallery layout */
+ul.images {width:100%;}

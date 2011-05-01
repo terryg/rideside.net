@@ -1,0 +1,54 @@
+/* $Id: newswire_green.css,v 1.2 2009/11/04 12:24:57 jmburnz Exp $ */
+
+/*****************************
+  Newswire Green Grass styles.css
+  Theme by AdaptiveThemes.com
+  
+  #2A6827 dark green
+  #4DA449 med green
+******************************/
+
+#search-box-top #edit-search-theme-form-1 {
+color:#4DA449;
+border-color:#2A6827;
+}
+
+#block-search-0 .form-submit,
+#search .form-submit {
+background-color:#4DA449;
+border-color: #2A6827;
+}
+
+#secondary-menu {
+border-color:#2A6827;
+}
+
+#main-navigation {
+background: transparent url(images/green-nav-bar.png) no-repeat left top;
+}
+
+#primary-menu ul.links li a,
+#suckerfish ul.menu li li a:link,
+#suckerfish ul.menu li li a:visited {
+background-color:#4DA449;
+}
+
+#suckerfish ul.menu li ul a:active,
+#suckerfish ul.menu li ul a:hover {
+background-color:#2A6827;
+}
+
+#suckerfish ul.menu li li.expanded a,
+#suckerfish ul.menu li li.expanded ul.menu a,
+#suckerfish ul.menu li li.expanded ul.menu li.expanded a {
+background-color:#4DA449;
+}
+
+#suckerfish ul.menu li li.expanded a:active,
+#suckerfish ul.menu li li.expanded a:hover,
+#suckerfish ul.menu li li.expanded ul.menu a:active,
+#suckerfish ul.menu li li.expanded ul.menu a:hover,
+#suckerfish ul.menu li li.expanded ul.menu li.expanded a:active,
+#suckerfish ul.menu li li.expanded ul.menu li.expanded a:hover {
+background-color:#2A6827;
+}

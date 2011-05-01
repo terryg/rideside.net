@@ -1,0 +1,119 @@
+/* $Id: suckerfish.css,v 1.5 2009/11/04 04:44:06 jmburnz Exp $ */
+
+#suckerfish {
+  margin: 0;
+  z-index: 1;
+}
+
+#suckerfish	 {
+  line-height: 3em;
+}
+
+/* top level UL */
+#suckerfish ul.menu {
+  font-weight: bold;
+  height: 3em;
+  margin: 0 0 0 0.5em;
+  padding: 0;
+} 
+
+#suckerfish a {
+  color: #FFF;
+  display: block;
+  line-height: 3em;
+  padding: 0 1em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#suckerfish a:active,
+#suckerfish a:hover {
+  text-decoration: none;
+}
+
+#suckerfish li {
+  display: inline;
+  float: left;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: auto;
+}
+
+#suckerfish li.hover ul {  
+  position: absolute;
+}
+
+#suckerfish li.expanded > a {
+  background: transparent url(images/arrows-suckerfish-down.png) no-repeat scroll right 15px;
+  overflow: hidden;
+  margin-right: .65em;
+}
+
+#suckerfish li.expanded > a:hover {
+  background: transparent url(images/arrows-suckerfish-down.png) no-repeat scroll right -75px;
+  overflow: hidden;
+}
+
+#suckerfish li.expanded li.expanded > a {
+  background: transparent url(images/arrows-suckerfish-accross.png) no-repeat scroll right 7px;
+  overflow: hidden;
+  margin-right: .65em;
+}
+
+#suckerfish li.expanded li.expanded > a:hover {
+  background: transparent url(images/arrows-suckerfish-accross.png) no-repeat scroll right -80px;
+  overflow: hidden;
+}
+
+#suckerfish ul.menu ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+#suckerfish ul.menu li ul {
+  position: absolute;
+  width: 175px;
+  left: -999em;
+  z-index: 3;
+}
+
+#suckerfish ul.menu li li {
+  float: right;
+  width: 175px;
+  margin: 0;
+}
+
+#suckerfish ul.menu li li a {
+  padding: 2px 0 0 5px;
+  width: 170px;
+  line-height: 22px;
+  font-weight: normal;
+}
+
+#suckerfish ul.menu li ul a:active,
+#suckerfish ul.menu li ul a:hover {
+  text-decoration: none;
+}
+
+/* margin for pullouts */
+#suckerfish ul.menu li ul ul {
+  margin: -23px 0 0 175px;
+}
+
+#suckerfish ul.menu li:hover ul ul, 
+#suckerfish ul.menu li:hover ul ul ul, 
+#suckerfish ul.menu li.sfhover ul ul, 
+#suckerfish ul.menu li.sfhover ul ul ul {
+  left: -999em;
+}
+
+#suckerfish ul.menu li:hover ul,
+#suckerfish ul.menu li li:hover ul, 
+#suckerfish ul.menu li li li:hover ul, 
+#suckerfish ul.menu li.sfhover ul, 
+#suckerfish ul.menu li li.sfhover ul, 
+#suckerfish ul.menu li li li.sfhover ul {
+  left: auto;
+}

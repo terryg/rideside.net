@@ -1,0 +1,113 @@
+  ; $Id: newswire.info,v 1.9 2009/11/03 22:58:02 jmburnz Exp $
+  
+  name = Newswire
+  description = A four column, fixed width theme with configurable color options and fancy block styles using the <a href="http://drupal.org/project/skinr">Skinr module</a>. By <a href="http://adaptivethemes.com/">AdaptiveThemes</a>
+  core = 6.x
+  engine = phptemplate
+  screenshot = screenshot.png
+
+  ; The regions defined in the page.tpl.php files.  The name in
+  ; brackets is the name of the variable. The text after the 
+  ; = sign is the short description you see on the block 
+  ; configuration page.
+		
+  regions[leaderboard] = Leaderboard
+  regions[suckerfish]  = Suckerfish menu
+
+  regions[header] = Header
+
+  regions[content_top_full_width] = Content top (950px)
+  regions[content_top_left]       = Content top col 1 (470px)
+  regions[content_top_right]      = Content top col 2 (470px)
+
+  regions[left] = Left (col 1)
+
+  regions[main_content_top]    = Main Content top (col 2 top)
+  regions[content]             = Main Content (col 2)
+  regions[main_content_bottom] = Main Content bottom (col 2 bottom)
+
+  regions[right_2] = Right 2 (col 3)
+  regions[right]   = Right (col 4)
+
+  regions[right_top_box]    = Right top box (390px)
+  regions[right_bottom_box] = Right bottom box (390px)
+
+  regions[content_bottom_left]       = Content bottom col 1 (470px)
+  regions[content_bottom_right]      = Content bottom col 2 (470px)
+  regions[content_bottom_full_width] = Content bottom (950px)
+
+  regions[footer] = Footer
+  
+  regions[node_region] = Node region
+
+  ; This section adds CSS files to your theme. The media type is specified in
+  ; the brackets. Typical CSS media types include "all", "screen", "print", and
+  ; "handheld". See http://www.w3.org/TR/CSS21/media.html#media-types for a full
+  ; list of stylesheet media types in CSS 2.1.
+
+  stylesheets[all][]   = reset.css
+  stylesheets[all][]   = html-elements.css
+  stylesheets[all][]   = forms.css
+  stylesheets[all][]   = layout.css
+  stylesheets[all][]   = suckerfish.css
+  stylesheets[all][]   = style.css
+
+  ; The "features" control which of these check boxes display on the
+  ; admin/build/themes configuration page. This is useful for 
+  ; suppressing check boxes for elements not used by your theme.
+  
+  features[] = logo
+  features[] = name
+  features[] = slogan
+  features[] = mission
+  features[] = node_user_picture
+  features[] = comment_user_picture
+  features[] = search
+  features[] = favicon
+  features[] = primary_links
+  features[] = secondary_links
+
+  ;Skinr Block border classes
+
+  skinr[nw-border-style][title] = Border Style
+  skinr[nw-border-style][type] = select
+  skinr[nw-border-style][features][] = block
+  skinr[nw-border-style][description] = Select a border style, the default is none.
+  skinr[nw-border-style][options][1][label] = Single border thin
+  skinr[nw-border-style][options][1][class] = nw-border-style-thin
+  skinr[nw-border-style][options][2][label] = Single border medium
+  skinr[nw-border-style][options][2][class] = nw-border-style-medium
+  skinr[nw-border-style][options][3][label] = Single border thick
+  skinr[nw-border-style][options][3][class] = nw-border-style-thick
+  skinr[nw-border-style][options][4][label] = Double border thin
+  skinr[nw-border-style][options][4][class] = nw-border-style-double
+  skinr[nw-border-style][options][5][label] = No border
+  skinr[nw-border-style][options][5][class] = nw-border-style-none
+  
+  skinr[nw-corners][title] = Rounded Corners
+  skinr[nw-corners][type] = select
+  skinr[nw-corners][features][] = block
+  skinr[nw-corners][description] = Add rounded corners block for Gecko and Webkit browsers (IE always gets square corners).
+  skinr[nw-corners][options][1][label] = 3px
+  skinr[nw-corners][options][1][class] = nw-corners-3px
+  skinr[nw-corners][options][2][label] = 6px
+  skinr[nw-corners][options][2][class] = nw-corners-6px
+  skinr[nw-corners][options][3][label] = 12px
+  skinr[nw-corners][options][3][class] = nw-corners-12px
+  
+  skinr[nw-background-fill][title] = Background fill
+  skinr[nw-background-fill][type] = select
+  skinr[nw-background-fill][features][] = block
+  skinr[nw-background-fill][description] = Add background fill to blocks.
+  skinr[nw-background-fill][options][1][label] = Light fill
+  skinr[nw-background-fill][options][1][class] = nw-background-fill-light
+  skinr[nw-background-fill][options][2][label] = Dark fill
+  skinr[nw-background-fill][options][2][class] = nw-background-fill-dark
+
+
+; Information added by drupal.org packaging script on 2009-11-04
+version = "6.x-4.1"
+core = "6.x"
+project = "newswire"
+datestamp = "1257338154"
+

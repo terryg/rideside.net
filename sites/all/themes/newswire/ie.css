@@ -1,0 +1,8 @@
+/* $Id: ie.css,v 1.7 2009/11/04 04:44:06 jmburnz Exp $ */
+body{text-align:center;}
+#container{text-align:left;}
+ol{margin-left:2em;}
+#search-box-top #edit-search-theme-form-1{width:250px;}
+#left div.block,#right div.block,#footer div.block {background:#FFF;}
+#right_2 div.block{background: transparent;}
+.block .content{padding:.5em .5em .1em .5em;}
