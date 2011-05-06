@@ -811,6 +811,13 @@ function comment_links($comment, $return = 1) {
 
   $links = array();
 
+  // Always provide a permalink
+  $links['comment_permalink'] = array(
+    'title' => t('permalink'),
+    'href' => comment_node_url(),
+    'fragment' => "comment-$comment->cid"
+  );
+
   // If we are viewing just this comment, we link back to the node.
   if ($return) {
     $links['comment_parent'] = array(
