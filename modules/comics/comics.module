@@ -1,0 +1,376 @@
+<?php
+// $Id: $
+
+/**
+ * @file
+ * Enable comics module.
+ */
+
+/**
+ * Implementation of hook_node_info().
+ */
+function comics_node_info() {
+  return array(
+    'comics' => array(
+      'name' => t('Web Comic'),
+      'module' => 'comics',
+      'description' => t("A Web Comic is stolen content."),
+      'has_title' => TRUE,
+      'title_label' => t('Comic Name'),
+      'has_body' => FALSE,
+      'body_label' => t('Comic Body'),
+    )
+  );
+}
+
+
+/**
+ * Implementation of hook_help().
+ */
+function comics_help($path, $arg) {
+  switch ($path) {
+    case 'admin/modules#description':
+      return t('A module for retrieving \'net comics');
+
+    case 'node/add#comics':
+      return t('This is a comics node which requires some special data.');
+  }
+}  
+
+/**
+ * Implementation of hook_node_name().
+ */
+function comics_node_name($node) {
+  return t('comics');
+}
+
+/**
+ * Implementation of hook_access().
+ */
+function comics_access($op, $node, $account) {
+
+  if ($op == 'create') {
+    return user_access('create a comic', $account);
+  }
+
+  if ($op == 'update' || $op == 'delete') {
+    if (user_access('edit own comic', $account) && ($account->uid == $node->uid)) {
+       return TRUE;    
+    }
+  }
+
+  if ($op == 'view') {
+    return TRUE;
+  }
+}
+
+
+/**
+ * Implementation of hook_node_perm().
+ */
+function comics_perm() {
+  return array(
+    'access comics',
+    'create a comic',
+    'edit own comic'
+  );
+}
+
+/**
+ * Implementation of hook_link().
+ */
+function comics_link($type, $node = 0, $main) {
+  $links = array();
+ 
+  if ($type == 'node' && $node->type == 'comics') {
+    $links['comics_edit_comic'] = array(
+        'title' => t('edit this comic'), 
+        'href' => "node/$node->nid/edit");
+  }
+
+  return $links;
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function comics_menu()
+{
+  $items = array();
+
+  $items['node/add/comics'] = array(
+                   'title' => 'comics',
+                   'access arguments' => array('create a comic'),
+		           'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['comics'] = array(
+                   'title' => 'Daily Comics',
+                   'page callback' => 'comics_all',
+                   'access arguments' => array('access comics'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_form().
+ */
+function comics_form(&$node, &$param)
+{
+  $type = node_get_types('type', $node);
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#required' => FALSE,
+  );
+
+
+  $form['body'] = array(
+    '#type' => 'textarea',
+    '#title' => check_plain($type->body_label),
+    '#rows' => 20,
+    '#required' => FALSE,
+  );
+
+  $form['urlname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL name'),
+    '#default_value' => $node->urlname,
+  );
+
+  $form['imgname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('IMG name'),
+    '#default_value' => $node->imgname,
+  );
+
+  return $form;
+}
+
+function comics_nodeapi(&$node, $op, $teaser, $page) {
+  switch ($op) {
+
+  }
+}
+
+/**
+ * Implementation of hook_insert().
+ */
+function comics_insert($node) {
+  db_query("INSERT INTO {comics} (nid, urlname, imgname) VALUES (%d, '%s', '%s')", $node->nid, $node->urlname, $node->imgname);
+}
+
+/**
+ * Implementation of hook_udpate().
+ */
+function comics_update($node) {
+  db_query("UPDATE {comics} SET urlname = '%s', imgname = '%s' WHERE nid = %d", $node->urlname, $node->imgname, $node->nid);
+}
+
+/**
+ * Implementation of hook_delete().
+ */
+function comics_delete($node) {
+  db_query("DELETE FROM {comics} WHERE nid = %d", $node->nid);
+}
+
+/**
+ * Implementation of hook_load().
+ */
+function comics_load($node) {
+  $t = db_fetch_object(db_query('SELECT urlname, imgname FROM {comics} WHERE nid = %d', $node->nid)); 
+
+  return $t;
+}
+
+/**
+ * Implementation of hook_view().
+ */
+function comics_view($node, $teaser = FALSE, $page = FALSE) {
+  $node = node_prepare($node, $teaser);  
+  $node->content['comic'] = array(
+    '#value' => comics_info($node),
+    '#weight' => 1,
+  );
+
+  return $node;
+}
+
+function comics_theme() {
+  return array(
+    'comics_info' => array(
+      'arguments' => array('node'),
+    ),
+  );
+}
+
+function comics_info($node) {   
+  $output = '<div class="comics_info">';
+
+  if ($node->title == 'Zippy the Pinhead') {
+    $url = 'http://zippythepinhead.com';
+    $imglink = 'http://zippythepinhead.com/Merchant2/graphics/00000001/';
+
+    $tm = localtime();
+
+    $yyyy = $tm[5] + 1900;
+    $yy = $tm[5] - 100;
+    $mm = $tm[4] + 1;
+    $dd = $tm[3];
+
+    if ($yy < 10) {
+      $yy = "0". $yy;
+    }
+
+    if ($mm < 10) {
+      $mm = "0". $mm;
+    }
+
+    if ($dd < 10) {
+      $dd = "0". $dd;
+    }
+
+    $imglink .= $yyyy;
+    $imglink .= '/images/'.$mm.$dd.$yy.'.gif';
+
+    $output .= '<a href="'.$url.'">';
+    $output .= '<img src="'.$imglink.'">';
+    $output .= '</a>';
+
+  } else if ($node->title == 'XKCD') {
+    $url = 'http://xkcd.com';
+    $imglink .= 'http://imgs.xkcd.com';
+
+    $response = file_get_contents($url);
+
+    $output .= '<a href="'.$url.'">';
+    
+    $r = preg_split('/\n/', $response);
+
+    $pattern1 = '/Image URL/';
+    $pattern2 = '/comics\/(.*\.png)/';
+
+    for ($ii = 0; $ii < count($r); $ii++) {
+      $line = $r[$ii];
+
+      if (preg_match($pattern1, $line, $match1)) {
+        if (preg_match($pattern2, $line, $match2)) {
+          $output .= '<img src="'.$imglink.'/'.$match2[0].'">';
+
+        }
+      }
+    }
+
+    $output .= '</a>';
+    
+  } else if ($node->imgname == '') {
+    $url = 'http://comics.com/'.$node->urlname.'/index.html';
+    $imglink = 'http://comics.com/'.$node->urlname.'/archive/images/';
+    
+    $response = file_get_contents($url);
+
+    $output .= '<a href="'.$url.'">';
+
+    $r = preg_split('/\n/', $response);
+    
+    $url = preg_split('/\//', $node->urlname);
+    $uNum = 0;
+
+    if (2 == count($url)) {
+	  $uNum = 1;
+    }
+
+    $pattern1 = '/ALT="Today\'s Comic"/';
+    $pattern2 = '/'.$url[$uNum].'([0-9]*\.gif)/';
+
+
+    for ($ii = 0; $ii < count($r); $ii++) {
+      $line = $r[$ii];
+
+      if (preg_match($pattern1, $line, $match1)) {
+      
+        if (preg_match($pattern2, $line, $match2)) {
+          $output .= '<img src="'.$imglink.'/'.$match2[0].'">';
+
+        }
+      }
+    } 
+
+    $output .= '</a>';
+
+  } else {
+    $tm = localtime();
+
+    $yyyy = $tm[5] + 1900;
+    $yy = $tm[5] - 100;
+    $mm = $tm[4] + 1;
+    $dd = $tm[3];
+
+    if ($yy < 10) {
+      $yy = "0". $yy;
+    }
+
+    if ($mm < 10) {
+      $mm = "0". $mm;
+    }
+
+    if ($dd < 10) {
+      $dd = "0". $dd;
+    }
+
+    $url = "http://www.ucomics.com/".$node->urlname;
+    $imglink = "http://images.ucomics.com/comics/".$node->imgname."/";
+    $imglink .= $yyyy."/".$node->imgname.$yy.$mm.$dd.".gif";
+
+    $output .= '<a href="'.$url.'">';
+    $output .= '<img src="'.$imglink.'">';
+    $output .= '</a>';
+
+  }
+
+  $output .= '</div>';
+
+  return $output;
+}
+
+function comics_all() {
+  $comics = array();
+  
+  $_comics = db_query("SELECT nid FROM {comics}"); 
+
+  $ii = 0;
+  while ($c = db_fetch_array($_comics)) {
+    $comic = db_fetch_object(db_query("SELECT node.nid, node.title, urlname, imgname FROM {node}, {comics} WHERE node.nid = comics.nid AND node.nid = %d ORDER BY node.title ASC", $c['nid']));
+
+    $comics[++$ii] = $comic;
+  }
+
+  $result = pager_query('SELECT DISTINCT(n.nid), n.sticky, n.created FROM {node n} WHERE n.type = \'comics\' AND n.promote = 1 AND n.status = 1 ORDER BY n.sticky DESC, n.created ASC ', variable_get('default_nodes_main', 20));
+
+  $output = '<div id="comics">';
+  $output .= '<ul>';
+
+  if (user_access('create a comic')) {
+    $output .= '<li>'.l(t('create a new comic'), "node/add/comics");
+  }
+
+  $output .= '</ul>';
+
+  if (db_result(db_query("SELECT COUNT(*) FROM {node} WHERE type = 'comics' AND promote = 1 and status = 1"))) {
+    drupal_set_html_head('<link rel="alternate" type="application/rss+xml" title="RSS" href="'. url('node/feed', array('absolute' => TRUE)) .'" />');
+
+    while ($node = db_fetch_object($result)) {
+      $output .= node_view(node_load($node->nid), 1);
+    }
+
+    $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
+  }
+
+  $output .= '</div>';
+
+  print theme('page', $output, 'Daily Comics');
+}
+
+?>
