@@ -1,4 +1,0 @@
-; $Id$
-name = Comics
-description = Displays web comics.
-core = 6.x
