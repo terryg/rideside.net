@@ -1,0 +1,18 @@
+!!! Strict
+%html{:lang => "en"}
+  %head
+    %meta{:charset=>"utf8"}
+    %meta{:name=>"viewport",:content=>"width=device-width, initial-scale=1.0"}
+    %meta{:name=>"description",:content=>""}
+    %meta{:name=>"author",:content=>""}
+
+    
+  %title
+    RIDESIDE.NET
+  %link{:href=>"//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css", :rel=>"stylesheet"}
+  %link{:href=>"css/main.css", :rel=>"stylesheet"}
+
+  %body
+    != yield
+    %script{:src=>"http://code.jquery.com/jquery.js"}
+    %script{:src=>"//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"}

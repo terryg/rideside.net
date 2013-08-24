@@ -1,0 +1,30 @@
+%div
+  %h1
+    RIDESIDE.NET
+
+%div
+  Powered by <a href="http://tumblr.com">tumblr.com</a> (<< Click there to post).
+
+%div{:class=>"content"}
+  - @posts.each do |p|
+    %hr
+    %div{:class=>"post"}
+      %a{:href=>"#{p['blog_name']}.tumblr.com"}
+        = p['blog_name']
+      = p['date']
+      %a{:href=>"#{p['post_url']}"}
+        >>
+      %div{:class=>"post-content"}
+        %strong
+          = p['title']
+        = p['description']
+        = p['body']
+         
+      
+%div
+  E-mail to <a mailto="admin@rideside.net">admin@rideside.net</a> to add our tumblr.
+
+%div
+  Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
+
+= File.read(File.join('views', 'google_analytics.html'))
