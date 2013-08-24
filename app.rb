@@ -33,4 +33,8 @@ class App < Sinatra::Base
     haml :index
   end
 
+  get '/~tgl' do
+    haml :resume
+  end
+
 end
