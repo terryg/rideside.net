@@ -3,8 +3,6 @@ require 'haml'
 require 'tumblr_client'
 require 'json'
 
-require './post'
-
 class App < Sinatra::Base
   
   Tumblr.configure do |config|
@@ -28,6 +26,9 @@ class App < Sinatra::Base
         @posts << p
       end
     end
+
+    @posts.sort_by!{|p| p['date']}
+    @posts.reverse!
 
     haml :index
   end
