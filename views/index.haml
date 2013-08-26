@@ -3,7 +3,8 @@
     RIDESIDE.NET (<a href="/">refresh</a>)
 
 %div
-  snarky snark, snark, snarkic, ironic, irony, ironic irony.
+  %em
+    = Quip.make
 
 %div
   Powered by <a href="http://tumblr.com">tumblr.com</a> (<< click there to post).
@@ -12,6 +13,7 @@
   - @posts.each do |p|
     %hr
     %div{:class=>"post"}
+      = p
       %a{:href=>"#{p['blog_name']}.tumblr.com"}
         = p['blog_name']
       = p['date']
@@ -25,7 +27,7 @@
          
       
 %div
-  E-mail to <a mailto="admin@rideside.net">admin@rideside.net</a> to add your tumblr.
+  E-mail to <a mailto="tgl@rideside.net">tgl@rideside.net</a> to add your tumblr.
 
 %div
   Find me on <a href="http://github.com/terryg/rideside.net">github</a>.

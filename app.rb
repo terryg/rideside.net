@@ -3,6 +3,8 @@ require 'haml'
 require 'tumblr_client'
 require 'json'
 
+require './quip'
+
 class App < Sinatra::Base
   
   Tumblr.configure do |config|
@@ -20,11 +22,12 @@ class App < Sinatra::Base
 
     users.each do |user|
       resp = client.posts("#{user}.tumblr.com")
+      puts resp
       posts = resp['posts']
       
       posts.each do |p|
         @posts << p
-      end
+      end unless posts.nil?
     end
 
     @posts.sort_by!{|p| p['date']}
