@@ -4,6 +4,7 @@ require 'tumblr_client'
 require 'json'
 
 require './quip'
+require './post'
 
 class App < Sinatra::Base
   
@@ -17,20 +18,19 @@ class App < Sinatra::Base
   get '/' do
     @posts = []
 
-    users = ['tlorber', 'michaeltfournier', 'thomasjwalshfrombillericama']
+    users = ['tlorber', 'michaeltfournier', 'thomasjwalshfrombillericama', '48bottles']
     client = Tumblr::Client.new
 
     users.each do |user|
       resp = client.posts("#{user}.tumblr.com")
-      puts resp
       posts = resp['posts']
       
       posts.each do |p|
-        @posts << p
+        @posts << Post.new(p)
       end unless posts.nil?
     end
 
-    @posts.sort_by!{|p| p['date']}
+    @posts.sort_by!{|p| p.date}
     @posts.reverse!
 
     haml :index
