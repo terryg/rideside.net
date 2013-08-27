@@ -18,7 +18,7 @@ class App < Sinatra::Base
   get '/' do
     @posts = []
 
-    users = ['tlorber', 'michaeltfournier', 'thomasjwalshfrombillericama', '48bottles']
+    users = ['tlorber', 'michaeltfournier', 'thomasjwalshfrombillericama', '48bottles', 'ladewtangclan', 'towlehouse']
     client = Tumblr::Client.new
 
     users.each do |user|
