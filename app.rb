@@ -15,6 +15,10 @@ class App < Sinatra::Base
     config.oauth_token_secret = ENV['TUMBLR_TOKEN_SECRET']
   end
   
+  get '/about' do
+    haml :about
+  end
+
   get '/' do
     @posts = []
 
