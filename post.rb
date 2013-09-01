@@ -25,7 +25,25 @@ class Post
       self.description = attr['description']
       self.body = attr['player'][0]['embed_code']
 
+    elsif attr['type'] == 'text'
+      self.blog_name = attr['blog_name']
+      self.date = attr['date']
+      self.post_url = attr['post_url']
+      self.title = attr['title']
+      self.description = attr['description']
+      self.body = attr['body']
+
+    elsif attr['type'] == 'link'
+      self.blog_name = attr['blog_name']
+      self.date = attr['date']
+      self.post_url = attr['post_url']
+      self.title = attr['title']
+      self.description = attr['description']
+      self.body = "<a href=\"#{attr['url']}\" _target=\"blank\">&gt;&gt;</a>"
+
     else
+      puts "*** #{attr}"
+
       self.blog_name = attr['blog_name']
       self.date = attr['date']
       self.post_url = attr['post_url']

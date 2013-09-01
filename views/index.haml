@@ -16,7 +16,7 @@
   - @posts.each do |p|
     %hr
     %div{:class=>"post"}
-      %a{:href=>"#{p.blog_name}.tumblr.com"}
+      %a{:href=>"http://#{p.blog_name}.tumblr.com"}
         = p.blog_name
       = p.date
       %a{:href=>"#{p.post_url}"}
