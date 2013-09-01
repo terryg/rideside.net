@@ -28,12 +28,10 @@ class App < Sinatra::Base
     users = User.get_all
 
     users.each do |user|
-      puts "**** #{user}"
       resp = client.posts("#{user}.tumblr.com")
       posts = resp['posts']
       
       posts.each do |p|
-        puts "** #{p}"
         @posts << Post.new(p)
       end unless posts.nil?
     end

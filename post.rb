@@ -17,6 +17,14 @@ class Post
 
       link = attr['photos'][0]['original_size']['url']
       self.body = "<img src=\"#{link}\"/><br/><strong>#{attr['caption']}</strong>"
+    elsif attr['type'] == 'video'
+      self.blog_name = attr['blog_name']
+      self.date = attr['date']
+      self.post_url = attr['post_url']
+      self.title = attr['title']
+      self.description = attr['description']
+      self.body = attr['player'][0]['embed_code']
+
     else
       self.blog_name = attr['blog_name']
       self.date = attr['date']
