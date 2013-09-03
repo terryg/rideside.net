@@ -11,6 +11,8 @@ class Post
     self.blog_name = attr['blog_name']
     self.date = attr['date']
     self.post_url = attr['post_url']
+    self.title = attr['title']
+    self.description = attr['description']
 
     if attr['type'] == 'photo'
       self.title = ""
@@ -19,24 +21,16 @@ class Post
       link = attr['photos'][0]['original_size']['url']
       self.body = "<img src=\"#{link}\"/><br/><strong>#{attr['caption']}</strong>"
     elsif attr['type'] == 'video'
-      self.title = attr['title']
-      self.description = attr['description']
       self.body = attr['player'][0]['embed_code']
 
     elsif attr['type'] == 'text'
-      self.title = attr['title']
-      self.description = attr['description']
       self.body = attr['body']
 
     elsif attr['type'] == 'link'
-      self.title = attr['title']
-      self.description = attr['description']
       self.body = "<a href=\"#{attr['url']}\" _target=\"blank\">&gt;&gt;</a>"
 
     else
       puts "*** #{attr}"
-      self.title = attr['title']
-      self.description = attr['description']
       self.body = attr['body']
 
     end
