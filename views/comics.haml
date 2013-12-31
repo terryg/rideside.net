@@ -1,0 +1,9 @@
+%div{:class=>"content"}
+  - @comics.each do |c|
+    %hr
+    %div{:class=>"comic"}
+      %strong
+        = c[0]
+
+      = c[1]
+      

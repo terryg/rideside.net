@@ -1,17 +1,3 @@
-%div
-  %h1
-    RIDESIDE.NET (<a href="/">refresh</a>)
-  %h2
-    <a href="/about">about</a>
-
-
-%div
-  %em
-    = Quip.make
-
-%div
-  Powered by <a href="http://tumblr.com">tumblr.com</a> (<< click there to post).
-
 %div{:class=>"content"}
   - @posts.each do |p|
     %hr
@@ -28,10 +14,3 @@
         = p.body
          
       
-%div
-  E-mail to <a mailto="tgl@rideside.net">tgl@rideside.net</a> to add your tumblr.
-
-%div
-  Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
-
-= File.read(File.join('views', 'google_analytics.html'))

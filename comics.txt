@@ -1,0 +1,3 @@
+Zippy the Pinhead,http://zippythepinhead.com
+XKCD,http://xkcd.com
+Fox Trot,http://www.gocomics.com/foxtrot

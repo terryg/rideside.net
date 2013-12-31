@@ -6,6 +6,7 @@ require 'json'
 require './quip'
 require './post'
 require './user'
+require './comic'
 
 class App < Sinatra::Base
   
@@ -18,6 +19,16 @@ class App < Sinatra::Base
   
   get '/about' do
     haml :about
+  end
+
+  get '/comics' do
+    @comics = Comic.make
+    haml :comics
+  end
+
+  get '/tracker' do
+    @posts = []
+    haml :index
   end
 
   get '/' do
