@@ -14,25 +14,7 @@ class Comic
   end
 
   def self.xkcd
-    url = "http://xkcd.com"
-
-    output = "<div><strong>XKCD</strong></div>"
-    output << "<div>Searching... <a href=\"#{url}\">#{url}</a></div>"
-
-    encoded_url = URI.encode(url)
-    uri = URI.parse(encoded_url)
-    response = Net::HTTP.get_response(uri)
-
-    if response.code == "200"
-      lines = response.body.split(/\n/)
-      lines.each do |l|
-        output << "<div>#{l}</div>" if l.match(/imgs.xkcd.com\/comics/)
-      end
-    else
-      output << "<div>Response code is #{response.code}</div>"
-    end
-
-    output
+    make_output("XKCD", "http://xkcd.com", /imgs.xkcd.com\/comics/)
   end
 
   def self.display(title, path)
@@ -41,6 +23,12 @@ class Comic
     mon = "0#{mon}" if mon.length == 1
     url = "http://www.gocomics.com/#{path}/#{d.year}/#{mon}/#{d.mday}"
 
+    make_output(title, url, /feature_item/)
+  end
+
+  protected
+
+  def self.make_output(title, url, pattern)
     output = "<div><strong>#{title}</strong></div>"
     output << "<div>Searching... <a href=\"#{url}\">#{url}</a></div>"
 
@@ -51,12 +39,13 @@ class Comic
     if response.code == "200"
       lines = response.body.split(/\n/)
       lines.each do |l|
-        output << "<div>#{l}</div>" if l.match(/feature_item/)
+        output << "<div>#{l}</div>" if l.match(pattern)
       end
     else
       output << "<div>Response code is #{response.code}</div>"
     end
 
-    output
+    output  
   end
+
 end
