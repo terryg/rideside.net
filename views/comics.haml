@@ -1,6 +1,10 @@
 %div{:class=>"content"}
+  %hr
+  %div{:class=>"comic"}
+    = Comic.xkcd
+
   - @comics.each do |c|
     %hr
     %div{:class=>"comic"}
-      = Comic.display(c[0].strip, c[1].strip)
+      = Comic.display(c[0], c[1])
       
