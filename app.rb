@@ -60,7 +60,7 @@ class App < Sinatra::Base
   end
 
   get '/~tgl' do
-    haml :resume
+    haml :resume, :layout => false
   end
 
 end
