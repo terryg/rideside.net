@@ -17,6 +17,12 @@ class App < Sinatra::Base
     config.oauth_token_secret = ENV['TUMBLR_TOKEN_SECRET']
   end
   
+  before do
+    if headers['Host'] =~ /herokuapp.com/
+      redirect 'www.rideside.net', 301
+    end
+  end
+
   get '/about' do
     haml :about
   end
