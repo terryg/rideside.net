@@ -18,7 +18,7 @@ class App < Sinatra::Base
   end
   
   before do
-    if headers['Host'] =~ /herokuapp.com/
+    if request.env['HTTP_HOST'].match(/herokuapp\.com/)
       redirect 'www.rideside.net', 301
     end
   end
