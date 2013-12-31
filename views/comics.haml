@@ -2,8 +2,5 @@
   - @comics.each do |c|
     %hr
     %div{:class=>"comic"}
-      %strong
-        = c[0]
-
-      = c[1]
+      = Comic.display(c[0].strip, c[1].strip)
       
