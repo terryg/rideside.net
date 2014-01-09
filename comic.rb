@@ -6,7 +6,11 @@ class Comic
       text = File.open('comics.txt').read
       text.each_line do |line|
         c = line.split(",")
-        @comics << [c[0].strip, c[1].strip]
+        if c and c[0] and c[1]
+          @comics << [c[0].strip, c[1].strip]
+        else
+          puts "*** Something is wrong with #{line} ***"
+        end
       end
     end
 
