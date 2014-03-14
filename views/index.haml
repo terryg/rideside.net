@@ -1,0 +1,16 @@
+%div{:class=>"content"}
+  - @posts.each do |p|
+    %hr
+    %div{:class=>"post"}
+      %a{:href=>"http://#{p.blog_name}.tumblr.com"}
+        = p.blog_name
+      = p.date
+      %a{:href=>"#{p.post_url}"}
+        >>
+      %div{:class=>"post-content"}
+        %strong
+          = p.title
+        = p.description
+        = p.body
+         
+      
