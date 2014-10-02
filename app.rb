@@ -2,11 +2,30 @@ require 'sinatra'
 require 'haml'
 require 'tumblr_client'
 require 'json'
+require 'net/http'
 
 require './quip'
 require './post'
 require './user'
 require './comic'
+
+Thread.new do 
+  while true do
+	  uri = URI('https://raw.githubusercontent.com/terryg/resume/master/README.md')
+    response = Net::HTTP.get(uri)   
+  
+	  File.open('views/resume.haml', 'w') { |file| 
+			file.write(".content\n")
+			file.write("  :markdown\n")
+			response.each_line { |line|
+				file.write("    ")				
+				file.write(line)
+  		}	
+		}
+
+	  sleep(60.minutes)
+  end
+end
 
 class App < Sinatra::Base
   
