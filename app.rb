@@ -8,6 +8,7 @@ require './quip'
 require './post'
 require './user'
 require './comic'
+require './node'
 
 Thread.new do 
   while true do
@@ -77,6 +78,13 @@ class App < Sinatra::Base
 
     haml :index
   end
+
+	get '/node/:id' do
+		@node = Node.first(:id => params[:id])
+		puts "*** looking for nid #{params[:id]}"
+	  puts "*** got #{@node}"
+  	haml :node unless @node.nil?  
+	end
 
   get '/~tgl' do
     haml :resume, :layout => false
