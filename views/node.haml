@@ -1,2 +1,8 @@
-%div
-  = @node.title
+%div{:id=>"node-#{@node_rev.nid}",:class=>"node"}
+  %div{:class=>"node-header"}
+    = "Posted by <strong>#{@node_rev.user.name}</strong> on #{@node_rev.posted_at}"
+  %div{:class=>"node-title"}
+    %h3
+      = @node_rev.title
+  %div{:class=>"node-body"}
+    = @node_rev.body

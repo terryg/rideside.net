@@ -8,7 +8,7 @@ require './quip'
 require './post'
 require './user'
 require './comic'
-require './node'
+require './models/node'
 
 Thread.new do 
   while true do
@@ -52,9 +52,40 @@ class App < Sinatra::Base
     haml :comics
   end
 
-  get '/tracker' do
-    @posts = []
-    haml :index
+	get '/tracker' do
+		min = Time.at(Node.first().created).strftime("%Y")
+		max = Time.at(Node.last().created).strftime("%Y")
+
+		@years = (min.to_i..max.to_i).step(1)
+
+		@nodes = []
+
+		haml :tracker
+  end
+
+	get '/tracker/:year' do
+ 
+		haml :tracker
+	end
+
+	get '/tracker/:year/:month' do
+		year = params[:year].to_i
+		month = params[:month].to_i
+
+		pos = Date.new(year, month, 1).to_time.to_i
+
+    if month == 12
+			year = year + 12
+      month = 1
+		else
+			month = month + 1
+		end
+
+		npos = Date.new(year, month, 1).to_time.to_i
+
+		@nodes = Node.all(:created.gt => pos, :created.lt => npos)
+
+		haml :tracker
   end
 
   get '/' do
@@ -80,10 +111,9 @@ class App < Sinatra::Base
   end
 
 	get '/node/:id' do
-		@node = Node.first(:id => params[:id])
-		puts "*** looking for nid #{params[:id]}"
-	  puts "*** got #{@node}"
-  	haml :node unless @node.nil?  
+		node = Node.first(:id => params[:id])
+		@node_rev = node.node_revisions.last unless node.nil?
+	  haml :node unless @node_rev.nil?  
 	end
 
   get '/~tgl' do

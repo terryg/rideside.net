@@ -9,4 +9,5 @@ require "dm-validations"
 require "dm-migrations"
 require "dm-timestamps"
 
+DataMapper::Logger.new(STDOUT, :debug)
 DataMapper.setup(:default, (ENV['HEROKU_MYSQL_BLUE_URL'] || "mysql://drupal:drupal@localhost/drupal"))
