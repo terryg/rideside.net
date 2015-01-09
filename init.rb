@@ -10,4 +10,12 @@ require "dm-migrations"
 require "dm-timestamps"
 
 DataMapper::Logger.new(STDOUT, :debug)
-DataMapper.setup(:default, (ENV['HEROKU_MYSQL_BLUE_URL'] || "mysql://drupal:drupal@localhost/drupal"))
+
+configure :development do
+    DataMapper.setup(:default, 'mysql://drupal:drupal@localhost/drupal')
+end
+
+configure :production do
+    DataMapper.setup(:default, ENV['CLEARDB_DATABASE_URL'])
+end
+
