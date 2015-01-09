@@ -9,3 +9,13 @@
     %div{:class=>"post"}
       %a{:href=>"/node/#{n.id}"}
         = n.title
+
+  - unless @year.nil?
+    %div{:class=>"post"}
+      %ul{:style=>"list-style-type:none;"}
+        - (1..12).each do |m|
+          %li
+            %a{:href=>"/tracker/#{@year}/#{m}"}
+              %h2
+                = m
+		

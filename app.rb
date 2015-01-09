@@ -64,7 +64,9 @@ class App < Sinatra::Base
   end
 
 	get '/tracker/:year' do
- 
+		@year = params[:year]
+    @years = []
+		@nodes = []
 		haml :tracker
 	end
 
@@ -84,7 +86,8 @@ class App < Sinatra::Base
 		npos = Date.new(year, month, 1).to_time.to_i
 
 		@nodes = Node.all(:created.gt => pos, :created.lt => npos)
-
+		@years = []
+ 
 		haml :tracker
   end
 
