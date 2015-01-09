@@ -1,0 +1,11 @@
+%div{:class=>"content"}
+  - @years.each do |y|
+    %div{:class=>"post"}
+      %a{:href=>"/tracker/#{y}"}
+        %h2
+          = y
+
+  - @nodes.each do |n|
+    %div{:class=>"post"}
+      %a{:href=>"/node/#{n.id}"}
+        = n.title
