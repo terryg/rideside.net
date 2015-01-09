@@ -9,8 +9,6 @@ require "dm-validations"
 require "dm-migrations"
 require "dm-timestamps"
 
-DataMapper::Logger.new(STDOUT, :debug)
-
 configure :development do
     DataMapper.setup(:default, 'mysql://drupal:drupal@localhost/drupal')
 end
