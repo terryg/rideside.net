@@ -9,11 +9,6 @@ require "dm-validations"
 require "dm-migrations"
 require "dm-timestamps"
 
-configure :development do
-    DataMapper.setup(:default, 'mysql://drupal:drupal@localhost/drupal')
-end
+DataMapper.setup(:default, (ENV['CLEARDB_DATABASE_URL'] || 'mysql://drupal:drupal@localhost/drupal')
 
-configure :production do
-    DataMapper.setup(:default, ENV['CLEARDB_DATABASE_URL'])
-end
 
