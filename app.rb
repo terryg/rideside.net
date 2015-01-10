@@ -3,6 +3,7 @@ require 'haml'
 require 'tumblr_client'
 require 'json'
 require 'net/http'
+require 'ruby-bbcode'
 
 require './quip'
 require './post'

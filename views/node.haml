@@ -5,4 +5,4 @@
     %h3
       = @node_rev.title
   %div{:class=>"node-body"}
-    = @node_rev.body
+    = @node_rev.body.bbcode_to_html
