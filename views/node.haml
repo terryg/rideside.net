@@ -6,3 +6,12 @@
       = @node_rev.title
   %div{:class=>"node-body"}
     = @node_rev.body.bbcode_to_html
+  %hr
+  %div{:class=>"node-comments"}
+    - @node_rev.node.comments.each do |c|
+      %div{:class=>"node-comment"}
+        %div
+          = "Posted by <strong>#{c.user.name}</strong> on #{c.posted_at}"
+        %div
+          = c.comment
+      %hr

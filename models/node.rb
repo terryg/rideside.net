@@ -2,6 +2,7 @@ require 'dm-core'
 
 require './models/node_revision'
 require './models/node_user'
+require './models/comment'
 
 class Node
 	include DataMapper::Resource
@@ -15,4 +16,5 @@ class Node
 
 	has n, :node_revisions, :child_key => [ :nid ]
 	has 1, :user, :model => 'NodeUser', :child_key => [ :uid ]
+	has n, :comments, :child_key => [ :nid ]
 end
