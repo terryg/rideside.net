@@ -13,5 +13,5 @@
         %div
           = "Posted by <strong>#{c.user.name}</strong> on #{c.posted_at}"
         %div
-          = c.comment
+          = c.comment.bbcode_to_html
       %hr

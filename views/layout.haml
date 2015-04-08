@@ -13,29 +13,30 @@
   %link{:href=>"/css/main.css", :rel=>"stylesheet"}
 
   %body
-    %div
-      %h1
-        WWW.RIDESIDE.NET
-      %h2
-        <a href="/">home</a> | <a href="/about">about</a> | <a href="/tracker">tracker</a> | <a href="/comics">comics</a>
+    #container
+      %div
+        %h1
+          WWW.RIDESIDE.NET
+        %h2
+          <a href="/">home</a> | <a href="/about">about</a> | <a href="/tracker">tracker</a> | <a href="/comics">comics</a>
 
 
-    %div
-      %em
-        = Quip.make
+      %div
+        %em
+          = Quip.make
 
 
-    %div
-      Powered by <a href="http://tumblr.com">tumblr.com</a> (<< click there to post).
+      %div
+        Powered by <a href="http://tumblr.com">tumblr.com</a> (<< click there to post).
 
-    != yield
+      != yield
     
 
-    %div
-      E-mail to <a mailto="tgl@rideside.net">tgl@rideside.net</a> to add your tumblr.
+      %div
+        E-mail to <a mailto="tgl@rideside.net">tgl@rideside.net</a> to add your tumblr.
 
-    %div
-      Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
+      %div
+        Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
 
     = File.read(File.join('views', 'google_analytics.html'))
 
