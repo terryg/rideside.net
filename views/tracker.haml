@@ -1,3 +1,13 @@
+%div{:class=>"breadcrumb"}
+  %h3
+    - unless @year.nil?
+      %span
+        %a{:href=>"/#{@year}"} #{@year}
+    - unless @month.nil?
+      %span
+        &#47;
+        %a{:href=>"/#{@year}/#{@month}"} #{@month}
+
 %div{:class=>"content"}
   - @years.each do |y|
     %div{:class=>"post"}
@@ -13,7 +23,7 @@
   - unless @year.nil?
     %div{:class=>"post"}
       %ul{:style=>"list-style-type:none;"}
-        - (1..12).each do |m|
+        - @months.each do |m|
           %li
             %a{:href=>"/tracker/#{@year}/#{m}"}
               %h2

@@ -56,24 +56,26 @@ class App < Sinatra::Base
 	get '/tracker' do
 		min = Time.at(Node.first().created).strftime("%Y")
 		max = Time.at(Node.last().created).strftime("%Y")
-
 		@years = (min.to_i..max.to_i).step(1)
-
+    @months = []
 		@nodes = []
-
 		haml :tracker
   end
 
 	get '/tracker/:year' do
 		@year = params[:year]
-    @years = []
+    @years = []	
+		@months = ("01".."12")
 		@nodes = []
 		haml :tracker
 	end
 
 	get '/tracker/:year/:month' do
-		year = params[:year].to_i
-		month = params[:month].to_i
+		@year = params[:year]
+    @month = params[:month]
+
+		year = @year.to_i
+		month = @month.to_i
 
 		pos = Date.new(year, month, 1).to_time.to_i
 
@@ -88,7 +90,7 @@ class App < Sinatra::Base
 
 		@nodes = Node.all(:created.gt => pos, :created.lt => npos)
 		@years = []
- 
+    @months = [] 
 		haml :tracker
   end
 
