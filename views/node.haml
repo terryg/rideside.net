@@ -1,3 +1,15 @@
+%div{:class=>"breadcrumb"}
+  %h3
+    - unless @year.nil?
+      %span
+        %a{:href=>"/tracker"} tracker
+        &#47;
+        %a{:href=>"/tracker/#{@year}"} #{@year}
+    - unless @month.nil?
+      %span
+        &#47;
+        %a{:href=>"/tracker/#{@year}/#{@month}"} #{@month}
+
 %div{:id=>"node-#{@node_rev.nid}",:class=>"node"}
   %div{:class=>"node-header"}
     = "Posted by <strong>#{@node_rev.user.name}</strong> on #{@node_rev.posted_at}"

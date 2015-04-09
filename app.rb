@@ -118,6 +118,9 @@ class App < Sinatra::Base
 
 	get '/node/:id' do
 		node = Node.first(:id => params[:id])
+		created = Time.at(node.created)
+		@year = created.year
+		@month = created.month
 		@node_rev = node.node_revisions.last unless node.nil?
 	  haml :node unless @node_rev.nil?  
 	end
