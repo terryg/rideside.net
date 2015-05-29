@@ -1,4 +1,10 @@
-%div{:class=>"breadcrumb"}
+%div{:class => "search"}
+  %h3
+    %form{:method => "GET", :action => "/tracker"}
+      %input{:type => "text", :name => "q"}
+      %input{:type => "submit", :value => "Search"}
+
+%div{:class => "breadcrumb"}
   %h3
     - unless @year.nil?
       %span

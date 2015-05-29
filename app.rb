@@ -54,11 +54,31 @@ class App < Sinatra::Base
   end
 
 	get '/tracker' do
-		min = Time.at(Node.first().created).strftime("%Y")
-		max = Time.at(Node.last().created).strftime("%Y")
-		@years = (min.to_i..max.to_i).step(1)
-    @months = []
-		@nodes = []
+		if !params[:q].nil? 
+			@years = []
+
+			revs = NodeRevision.all(:body.like => "%#{params[:q]}%")
+      comments = Comment.all(:comment.like => "%#{params[:q]}%")
+
+     	@nodes = []
+
+      revs.each do |r| 
+				@nodes << r.node
+      end
+
+	    comments.each do |c| 
+				@nodes << c.node
+      end
+		else
+  		min = Time.at(Node.first().created).strftime("%Y")
+	  	max = Time.at(Node.last().created).strftime("%Y")
+		  @years = (min.to_i..max.to_i).step(1)
+		  @nodes = []      
+		end
+
+		@months = []
+
+		
 		haml :tracker
   end
 
