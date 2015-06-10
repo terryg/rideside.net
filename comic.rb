@@ -34,7 +34,7 @@ class Comic
 
   def self.make_output(title, url, pattern)
     output = "<div><strong>#{title}</strong></div>"
-    output << "<div>Searching... <a href=\"#{url}\">#{url}</a></div>"
+		output << "<div><em>Source</em>: <a href=\"#{url}\">#{url}</a></div>"
 
     encoded_url = URI.encode(url)
     uri = URI.parse(encoded_url)
