@@ -9,6 +9,7 @@ require './quip'
 require './post'
 require './user'
 require './comic'
+require './jobs'
 require './models/node'
 
 class App < Sinatra::Base
@@ -128,6 +129,7 @@ class App < Sinatra::Base
   end
 
   get '/~tgl' do
+    Jobs.get_resume
     haml :resume, :layout => false
   end
 
