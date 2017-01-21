@@ -137,4 +137,8 @@ class App < Sinatra::Base
     haml :italian_cookies, :layout => false
   end
 
+  get '/sitemap.xml' do
+    haml :sitemap, :layout => false
+  end
+  
 end
