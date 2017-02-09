@@ -25,7 +25,7 @@
 
   - @nodes.each do |n|
     %div{:class=>"post"}
-      %a{:href=>"/node/#{n.id}"}
+      %a{:href=>"/nodes/#{n.id}"}
         = n.title
 
   - unless @year.nil?
