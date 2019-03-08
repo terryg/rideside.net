@@ -142,7 +142,6 @@ class App < Sinatra::Base
   end
 
   get '/~tgl' do
-    Jobs.get_resume
     haml :resume, :layout => false
   end
 
