@@ -8,7 +8,6 @@ require 'sinatra'
 require 'tumblr_client'
 
 require './comic'
-require './jobs'
 require './post'
 require './quip'
 require './user'
