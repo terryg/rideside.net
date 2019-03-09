@@ -1,3 +1,32 @@
+- if @current_user
+  %div
+    %strong
+      = @current_user.uid
+
+  %div
+    %a{:href => "/signout"}
+      Signout
+
+  %div
+    %form{ :action => "/nodes", :method => "post" }
+      %fieldset
+        %p
+          %label{:for => "body"} Body:
+          %textarea{:name => "body", :rows => "4", :cols => "50", :class => "text"}
+        %p
+          %label{:for => "tag_names"} Tags:
+          %input{:type => "text", :name => "tag_names", :class => "text"}
+        %p.button
+          %input{:type => "submit", :value => "Send", :class => "button"}
+
+- else
+  %div
+    %a{:href => "/auth/tumblr"}
+      Sign in with Tumblr
+
+
+
+
 %div{:class=>"content"}
   - @posts.each do |p|
     %hr
