@@ -139,8 +139,7 @@ class App < Sinatra::Base
   end
 
   get '/~tgl' do
-    Jobs.get_resume
-    haml :resume, :layout => false
+    haml :home, :layout => false
   end
 
   get '/~tgl/italian_cookies' do
