@@ -1,3 +1,4 @@
 .env
 views/resume.haml
 *~
+vendor/
