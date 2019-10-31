@@ -23,12 +23,6 @@ class App < Sinatra::Base
   end
   
   before do
-    puts request.env['REQUEST_URI']
-    puts request.env['SERVER_INFO']
-    puts request.env['PATH_INFO']
-    if request.env['HTTP_HOST'].match(/herokuapp\.com/)
-      redirect 'http://www.rideside.net', 301
-    end
     current_user
   end
 
