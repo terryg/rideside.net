@@ -70,6 +70,7 @@ GEM
     multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
+    nio4r (2.5.2)
     oauth (0.5.4)
     omniauth (1.9.1)
       hashie (>= 3.4.6)
@@ -81,6 +82,8 @@ GEM
       multi_json
       omniauth-oauth (~> 1.0)
     public_suffix (4.0.5)
+    puma (4.3.5)
+      nio4r (~> 2.0)
     rack (2.2.3)
     rack-protection (2.0.8.1)
       rack
@@ -125,6 +128,7 @@ DEPENDENCIES
   oauth
   omniauth
   omniauth-tumblr
+  puma (~> 4.3)
   redcarpet
   redis (>= 3.2.0)
   ruby-bbcode
