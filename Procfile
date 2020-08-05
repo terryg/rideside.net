@@ -1,1 +1,1 @@
-web: bundle exec rackup config.ru -p $PORT
+web: bundle exec foreman run puma -C config/puma.rb

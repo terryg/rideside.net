@@ -1,4 +1,6 @@
 .env
 views/resume.haml
 *~
-vendor/
+vendor/.*
+.*
+vendor/bundle

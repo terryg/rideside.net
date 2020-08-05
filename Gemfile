@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.5.5'
+ruby '2.7.0'
 
 gem 'data_mapper'
 gem 'dm-mysql-adapter'
