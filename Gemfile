@@ -15,7 +15,13 @@ gem 'omniauth-tumblr'
 gem 'redcarpet'
 gem 'ruby-bbcode'
 gem 'sinatra'
-gem 'shotgun'
 gem 'tumblr_client'
 
 gem "puma", "~> 4.3"
+
+group :development do
+gem 'shotgun'
+gem 'rubocop'
+end
+
+gem "nokogiri", "~> 1.10"

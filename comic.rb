@@ -18,16 +18,16 @@ class Comic
   end
 
   def self.xkcd
-    make_output("XKCD", "http://xkcd.com", /imgs.xkcd.com\/comics/)
+    make_output("XKCD", "https://xkcd.com", /imgs.xkcd.com\/comics/)
   end
 
   def self.display(title, path)
     d = Time.now.to_date
     mon = "#{d.mon}"
     mon = "0#{mon}" if mon.length == 1
-    url = "http://www.gocomics.com/#{path}/#{d.year}/#{mon}/#{d.mday}"
+    url = "https://www.gocomics.com/#{path}/#{d.year}/#{mon}/#{d.mday}"
 
-    make_output(title, url, /feature_item/)
+    make_output(title, url, /item-comic-image/)
   end
 
   protected
@@ -43,7 +43,10 @@ class Comic
     if response.code == "200"
       lines = response.body.split(/\n/)
       lines.each do |l|
-        output << "<div>#{l}</div>" if l.match(pattern)
+        if l.match(pattern)
+          puts "MATCHED #{l}"
+          output << "<div>#{l}</div>"
+        end
       end
     else
       output << "<div>Response code is #{response.code}</div>"
