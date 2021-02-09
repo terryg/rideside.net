@@ -147,6 +147,10 @@ class App < Sinatra::Base
     haml :jeff_varasanos_ny_pizza_recipe, layout: false
   end
 
+  get '/~tgl/kombucha' do
+    haml :kombucha, layout: false
+  end
+  
   get '/sitemap.xml' do
     haml :sitemap, layout: false
   end
