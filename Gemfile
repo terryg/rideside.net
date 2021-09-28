@@ -24,4 +24,4 @@ gem 'shotgun'
 gem 'rubocop'
 end
 
-gem "nokogiri", "~> 1.10"
+gem "nokogiri", "~> 1.12"
