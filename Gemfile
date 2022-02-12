@@ -17,7 +17,7 @@ gem 'ruby-bbcode'
 gem 'sinatra'
 gem 'tumblr_client'
 
-gem "puma", "~> 4.3"
+gem "puma", "~> 5.6"
 
 group :development do
 gem 'shotgun'
