@@ -151,6 +151,10 @@ class App < Sinatra::Base
     haml :kombucha, layout: false
   end
   
+  get '/~tgl/stuffed-quahog' do
+    haml :stuffed_quahog, layout: false
+  end
+
   get '/sitemap.xml' do
     haml :sitemap, layout: false
   end
