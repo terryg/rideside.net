@@ -58,7 +58,7 @@ GEM
     haml (5.1.2)
       temple (>= 0.8.0)
       tilt
-    hashie (4.1.0)
+    hashie (5.0.0)
     hiredis (0.6.3)
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
@@ -76,12 +76,13 @@ GEM
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     oauth (0.5.4)
-    omniauth (1.9.1)
+    omniauth (2.0.0)
       hashie (>= 3.4.6)
       rack (>= 1.6.2, < 3)
-    omniauth-oauth (1.1.0)
+      rack-protection
+    omniauth-oauth (1.2.0)
       oauth
-      omniauth (~> 1.0)
+      omniauth (>= 1.0, < 3)
     omniauth-tumblr (1.2)
       multi_json
       omniauth-oauth (~> 1.0)
@@ -91,7 +92,7 @@ GEM
     public_suffix (4.0.5)
     puma (4.3.5)
       nio4r (~> 2.0)
-    rack (2.2.3)
+    rack (2.2.6.2)
     rack-protection (2.0.8.1)
       rack
     rainbow (3.0.0)
