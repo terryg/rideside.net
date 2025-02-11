@@ -136,7 +136,7 @@ class App < Sinatra::Base
   end
 
   get '/~tgl' do
-    haml :home, layout: false
+    haml :tgl, layout: false
   end
 
   get '/~tgl/italian-cookies' do
