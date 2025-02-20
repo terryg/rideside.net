@@ -260,7 +260,7 @@ DEPENDENCIES
   tumblr_client!
 
 RUBY VERSION
-   ruby 3.4.1p0
+   ruby 3.2.3p157
 
 BUNDLED WITH
    2.6.2
