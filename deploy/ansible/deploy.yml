@@ -1,0 +1,57 @@
+- hosts: servers
+
+  vars:
+    service_user: ubuntu
+    
+  tasks:
+    - name: Update system
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} -- sh -c "sudo apt update && sudo apt -y upgrade"
+
+    - name: Install system dependencies
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} -- sh -c "sudo apt install -y build-essential libmysqlclient-dev ruby ruby-dev"
+        
+    - name: Create {{ app_dir }} on host
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+
+    - name: Sync rideside dist
+      synchronize:
+        src: "{{ src_dir }}/rideside.tar.gz"
+        dest: "{{ app_dir }}/rideside.tar.gz"
+        recursive: true
+        delete: true
+
+    - name: Push {{ build_dir }}/rideside.tar.gz to {{ home_dir }} in container
+      ansible.builtin.shell:
+        cmd: lxc file push {{ app_dir }}/rideside.tar.gz {{ lxc_name }}{{ home_dir }}/rideside.tar.gz
+
+    - name: Config Bundler
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} --user 1000 --cwd {{ deploy_dir }} -- sh -c "/usr/local/bin/bundle config set deployment true"
+    - name: Install Ruby Gems
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} --user 1000 --cwd {{ deploy_dir }} -- sh -c "/usr/local/bin/bundle install"
+
+    - name: Extract {{ home_dir }}/rideside.tar.gz in container
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} --cwd {{ home_dir }} -- sh -c "tar -xzvf rideside.tar.gz && chown -R ubuntu:ubuntu rideside"
+
+    - name: Create service config
+      template:
+        src: ./templates/systemd-service.j2
+        dest: "{{ build_dir }}/rideside.service"
+
+    - name: Push {{ build_dir }}/rideside.service to /etc/systemd/system in container
+      ansible.builtin.shell:
+        cmd: lxc file push {{ build_dir }}/rideside.service {{ lxc_name }}/etc/systemd/system/rideside.service
+
+    - name: Enable service in container
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} -- sh -c "sudo systemctl enable rideside"
+        
+    - name: Restart container
+      ansible.builtin.shell:
+        cmd: lxc restart {{ lxc_name }}
