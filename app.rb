@@ -9,6 +9,7 @@ require 'tumblr_client'
 
 require './comic'
 require './post'
+require './project'
 require './quip'
 require './user'
 require './models/node'
@@ -98,13 +99,6 @@ class App < Sinatra::Base
   get '/' do
     @posts = []
 
-    Tumblr.configure do |config|
-      config.consumer_key = ENV['TUMBLR_CONSUMER_KEY']
-      config.consumer_secret = ENV['TUMBLR_CONSUMER_SECRET']
-      config.oauth_token = ENV['TUMBLR_TOKEN']
-      config.oauth_token_secret = ENV['TUMBLR_TOKEN_SECRET']
-    end
-
     client = Tumblr::Client.new
 
     users = User.get_all
@@ -136,6 +130,15 @@ class App < Sinatra::Base
   end
 
   get '/~tgl' do
+    @projects = []
+    @projects << Project.new({'topic': '#gardentok', 'description': 'Garden content on TikTok', 'imgpath': '/imgs/growherbert-tiktok.jpg', 'imgwidth': '185', 'projectlink': 'https://www.tiktok.com/@growherbert'})
+    @projects << Project.new({'topic': 'Metatooth', 'description': 'Advanced manufacturing and the dental industry on the Metatooth Blog', 'imgpath': '/imgs/metatooth.jpg', 'imgwidth': '185', 'projectlink': 'https://metatooth.com/blog'})
+    @projects << Project.new({'topic': 'CAD in the Browser', 'description': '3D applications in the browser made possible by three.js', 'imgpath': '/imgs/design-by-metatooth.jpg', 'imgwidth': '185', 'projectlink': 'https://design.metatooth.com'})
+    @projects << Project.new({'topic': 'Environmental Control', 'description': 'Cloud-native, mobile-first, HVAC system', 'imgpath': '/imgs/growherbert.jpg', 'imgwidth': '185', 'projectlink': 'https://grow.herbert.gr'})
+    @projects << Project.new({'topic': 'Image Gallery', 'description': 'Image gallery suited to visual artists', 'imgpath': '/imgs/laramirandagoodman.jpg', 'imgwidth': '185', 'projectlink': 'https://laramirandagoodman.com'})
+
+    @cards = [['Italian Cookies', 'italian-cookies'], ['Jeff Varasano\'s NY Pizza Recipe', 'jeff-varasanos-ny-pizza-recipe'], ['Kombucha', 'kombucha'], ['Stuffed Quahog', 'stuffed-quahog']]
+
     haml :tgl, layout: false
   end
 
