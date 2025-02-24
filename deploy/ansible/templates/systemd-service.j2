@@ -9,7 +9,7 @@ StandardOutput=inherit
 StandardError=inherit
 Restart=always
 User={{ service_user }}
-Environment=CLEARDB_DATABASE_URL={{ db_url }}
+Environment=DATABASE_URL={{ db_url }}
 Environment=TUMBLR_CONSUMER_KEY={{ tumblr_key }}
 Environment=TUMBLR_CONSUMER_SECRET={{ tumblr_secret }}
 Environment=RACK_ENV=production

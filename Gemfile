@@ -1,31 +1,28 @@
 source 'https://rubygems.org'
 ruby '3.2.3'
 
-gem 'data_mapper'
-gem 'dm-mysql-adapter'
-gem 'hiredis', '~> 0.6'
-gem 'redis', '>= 3.2.0', :require => ['redis', 'redis/connection/hiredis']
-gem 'faraday', '~> 1.0'
-gem 'faraday-httpclient'
 gem 'foreman'
 gem 'haml'
+gem 'hiredis', '~> 0.6'
 gem 'json'
 gem 'multi_json'
+gem 'mysql2'
+gem 'nokogiri', '~> 1.12'
 gem 'oauth'
 gem 'omniauth'
 gem 'omniauth-tumblr'
-gem 'ostruct'
-gem 'redcarpet'
+gem 'puma', '~> 6.6'
 gem 'readline'
+gem 'redcarpet'
+gem 'redis', '>= 3.2.0', :require => ['redis', 'redis/connection/hiredis']
+gem 'rom'
+gem 'rom-sql'
 gem 'ruby-bbcode'
 gem 'sinatra'
 gem 'tumblr_client', git: 'https://github.com/tumblr/tumblr_client.git'
 
-gem 'puma', '~> 6.6'
-
 group :development do
-gem 'shotgun'
-gem 'rubocop'
+  gem 'database_cleaner'
+  gem 'shotgun'
+  gem 'rubocop'
 end
-
-gem 'nokogiri', '~> 1.12'

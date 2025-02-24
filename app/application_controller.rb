@@ -7,17 +7,21 @@ require 'ruby-bbcode'
 require 'sinatra'
 require 'tumblr_client'
 
-require './comic'
-require './post'
-require './project'
-require './quip'
-require './user'
-require './models/node'
-require './models/user_profile'
+require './app/comic'
+require './app/post'
+require './app/project'
+require './app/quip'
+require './app/user'
 
-class App < Sinatra::Base
+class ApplicationController < Sinatra::Base
   use Rack::Session::Cookie, key: 'rack.session', secret: ENV['RACK_SESSION_SECRET']
-  enable :logging
+
+  set :views, File.expand_path('../views', __FILE__)
+  set :public_folder, File.expand_path('../../public', __FILE__)
+  
+  configure :production, :development do
+    enable :logging
+  end
 
   use OmniAuth::Builder do
     provider :tumblr, ENV['TUMBLR_CONSUMER_KEY'], ENV['TUMBLR_CONSUMER_SECRET']
@@ -53,8 +57,10 @@ class App < Sinatra::Base
         @nodes << c.node
       end
     else
-      min = Time.at(Node.first.created).strftime('%Y')
-      max = Time.at(Node.last.created).strftime('%Y')
+      nodes = MAIN_CONTAINER.relations[:nodes]
+      
+      min = Time.at(nodes.first[:created]).strftime('%Y')
+      max = Time.at(nodes.last[:created]).strftime('%Y')
       @years = (min.to_i..max.to_i).step(1)
       @nodes = []
     end
@@ -90,7 +96,35 @@ class App < Sinatra::Base
 
     npos = Date.new(year, month, 1).to_time.to_i
 
-    @nodes = Node.all(:created.gt => pos, :created.lt => npos)
+    @nodes = MAIN_CONTAINER.relations[:nodes].where { (created > pos) & (created < npos) }
+    
+    @years = []
+    @months = []
+    haml :tracker
+  end
+
+  get '/tracker/:year/:month/:day' do
+    @year = params[:year]
+    @month = params[:month]
+    @day = params[:day]
+
+    year = @year.to_i
+    month = @month.to_i
+    day = @day.to_i
+    
+    pos = Date.new(year, month, day).to_time.to_i
+
+    if month == 12
+      year += 12
+      month = 1
+    else
+      month += 1
+    end
+
+    npos = Date.new(year, month, day).to_time.to_i
+
+    @nodes = MAIN_CONTAINER.relations[:nodes].where { (created > pos) & (created < npos) }
+    
     @years = []
     @months = []
     haml :tracker
@@ -121,12 +155,26 @@ class App < Sinatra::Base
   end
 
   get '/nodes/:id' do
-    node = Node.first(id: params[:id])
-    created = Time.at(node.created)
+    nodes = MAIN_CONTAINER.relations[:nodes]
+    @node = nodes.by_pk(params[:id]).one!
+
+    created = Time.at(@node[:created])
     @year = created.year
-    @month = created.month
-    @node_rev = node.node_revisions.last unless node.nil?
-    haml :node unless @node_rev.nil?
+    @month = "#{created.month}".rjust(2, '0')
+    @day = "#{created.day}".rjust(2, '0')
+
+    node_revs = MAIN_CONTAINER.relations[:node_revisions]
+    @node_rev = node_revs.where(nid: @node[:nid]).last
+
+    comments = MAIN_CONTAINER.relations[:comments]
+    @comments = comments.by_nid(@node[:nid]).join(:users, uid: :uid)
+
+    puts @comments.inspect
+    
+    users = MAIN_CONTAINER.relations[:users]
+    @user = users.by_pk(@node[:uid]).one!
+
+    haml :node, escape_html: false
   end
 
   get '/~tgl' do
@@ -135,6 +183,7 @@ class App < Sinatra::Base
     @projects << Project.new({'topic': 'Metatooth', 'description': 'Advanced manufacturing and the dental industry on the Metatooth Blog', 'imgpath': '/imgs/metatooth.jpg', 'imgwidth': '185', 'projectlink': 'https://metatooth.com/blog'})
     @projects << Project.new({'topic': 'CAD in the Browser', 'description': '3D applications in the browser made possible by three.js', 'imgpath': '/imgs/design-by-metatooth.jpg', 'imgwidth': '185', 'projectlink': 'https://design.metatooth.com'})
     @projects << Project.new({'topic': 'Environmental Control', 'description': 'Cloud-native, mobile-first, HVAC system', 'imgpath': '/imgs/growherbert.jpg', 'imgwidth': '185', 'projectlink': 'https://grow.herbert.gr'})
+    @projects << Project.new({'topic': 'Lorbeer', 'description': 'Homebrewing and Beer Tasting', 'imgpath': '/imgs/lorbeer.jpg', 'imgwidth': '185', 'projectlink': 'https://48-bottles.tumblr.com'})
     @projects << Project.new({'topic': 'Image Gallery', 'description': 'Image gallery suited to visual artists', 'imgpath': '/imgs/laramirandagoodman.jpg', 'imgwidth': '185', 'projectlink': 'https://laramirandagoodman.com'})
 
     @cards = [['Italian Cookies', 'italian-cookies'], ['Jeff Varasano\'s NY Pizza Recipe', 'jeff-varasanos-ny-pizza-recipe'], ['Kombucha', 'kombucha'], ['Stuffed Quahog', 'stuffed-quahog']]

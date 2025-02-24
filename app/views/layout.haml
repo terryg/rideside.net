@@ -25,17 +25,12 @@
         %em
           = Quip.make
 
-
       != yield
     
-
-      %div
-        E-mail to <a mailto="tgl@rideside.net">tgl@rideside.net</a> to add your tumblr.
-
       %div
         Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
 
-    = File.read(File.join('views', 'google_analytics.html'))
+    != File.read(File.join('app', 'views', 'google_analytics.html'))
 
     %script{:src=>"http://code.jquery.com/jquery.js"}
     %script{:src=>"//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"}

@@ -1,0 +1,101 @@
+!!! Strict
+%html{:lang=>"en",:dir => "ltr"}
+  %head
+    %meta{:charset=>"utf8"}
+    %title
+      Terry Lorber
+    %link{:href=>"/css/portfolio.css", :rel=>"stylesheet"}
+    %link{:rel=>"stylesheet",:href=>"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"}
+    %meta{:name=>"viewport",:content=>"width=device-width, initial-scale=1.0"}
+
+  %body
+    %div{:class=>"scroll-button"}
+      %a{:href=>"#home"}
+        %i{:class=>"fas fa-arrow-up"}
+
+    %nav
+      %div{:class=>"navbar"}
+        %ul{:class=>"menu"}
+          %li
+            %a{:href=>"#home"}
+              %i{:class=>"fas fa-home"}
+          %li
+            %a{:href=>"#about"}= "About"
+          %li
+            %a{:href=>"#projects"}= "Projects"
+          %li
+            %a{:href=>"#recipes"}= "Recipes"
+          %div{:class=>"cancel-btn"}
+            %i{:class=>"fas fa-times"}
+        %div{:class=>"media-icons"}
+          %a{:href=>"https://linkedin.com/in/terry-g-lorber", :target => "_blank"}
+            %i{:class=>"fab fa-linkedin"}
+          %a{:href=>"https://github.com/terryg", :target => "_blank"}
+            %i{:class=>"fab fa-github"}
+          %a{:href=>"https://bsky.app/profile/tgl2.bsky.social", :target => "_blank"}
+            %i{:class=>"fab fa-bluesky"}
+          %a{:href=>"https://instagram.com/tgl2", :target => "_blank"}
+            %i{:class=>"fab fa-instagram"}
+
+      %div{:class=>"menu-btn"}
+        %i{:class=>"fas fa-bars"}
+
+    %section{:class=>"home",:id=>"home"}
+      %div{:class=>"home-content"}
+        %div{:class=>"text"}
+          I am Terry Lorber
+          %br/
+          Raised in Concord, NH
+          %br/
+          University of Michigan, Class of 1996
+          %br/
+          B.S. in Mechanical Engineering
+          %br/
+          Gardener / Hiker / Programmer / Skier
+          %br/
+          %a{:href=>"/TerryLorber-CV.pdf"}= "Download CV"
+    
+    %section{:class=>"about",:id=>"about"}
+      %div{:class=>"content"}
+        %div{:class=>"about-details"}
+          %div{:class=>"left"}
+            %img{:src=>"/imgs/Terry_Lorber--485x485.jpg",:alt=>""}
+          %div{:class=>"right"}
+            %p{:class=>"text"}= "I earned a Bachelor's in Mechanical Engineering from the University of Michigan and a Master's in Computer Science from Boston University. I was the first software hire for Atlantis Components and later LightForce Orthodontics. I enjoy solving problems with software. Under the name Metatooth, I launched a direct-to-consumer mouthguard business leveraging my knowledge of digital dentistry workflows. Today, I am a consultant to businesses regarding advanced manufacturing, technology integration, and product development."
+
+    %section{:class=>"projects",:id=>"projects"}
+      %div{:class=>"content"}
+        %div{:class=>"boxes"}
+          %div{:class=>"box"}
+            %div{:class=>"topic"}= "Kaleidocycle"
+            %iframe{:src=>"https://kaleidocycle.metatooth.com/embed.html",:width=>"300",:height=>"300",:title=>"A rotating ring of tetrahedra"}
+            %p= "A rotating ring of tetrahedra"
+            %br/
+            %p
+              Source:
+              %a{:href=>"https://kaleidocycle.metatooth.com",:target=>"_blank"}
+                kaleidocycle.metatooth.com
+
+          - @projects.each do |project|
+            %div{:class=>"box"}
+              %div{:class=>"topic"}= project.topic
+              %div
+                %a{:href=>project.projectlink,:target=>"_blank"}
+                  %img{:src=>project.imgpath,:width=>project.imgwidth}
+              %p= project.description
+                
+    %section{:class=>"recipes",:id=>"recipes"}
+      %div{:class=>"content"}
+        %div{:class=>"cards"}
+          - @cards.each do |card|
+            %div{:class=>"card"}
+              %div{:class=>"topic"}
+                %a{:href=>"/~tgl/#{card[1]}"}
+                  = card[0]
+                
+    %footer
+      %div{:class=>"text"}
+        %span
+          Copyright &#169; 2025 Terry Lorber
+  
+    %script{:src=>"/js/script.js"}

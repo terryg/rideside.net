@@ -3,7 +3,7 @@ class Quip
   def self.make
     if @quips.nil?
       @quips = []
-      text = File.open('quips.txt').read
+      text = File.open(File.join('app', 'quips.txt')).read
       text.each_line do |line|
         @quips << line
       end

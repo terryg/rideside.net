@@ -9,21 +9,25 @@
       %span
         &#47;
         %a{:href=>"/tracker/#{@year}/#{@month}"} #{@month}
+    - unless @day.nil?
+      %span
+        &#47;
+        %a{:href=>"/tracker/#{@year}/#{@month}/#{@day}"} #{@day}
 
-%div{:id=>"node-#{@node_rev.nid}",:class=>"node"}
+%div{:id=>"node-#{@node_rev[:nid]}",:class=>"node"}
   %div{:class=>"node-header"}
-    = "Posted by <strong>#{@node_rev.user.name}</strong> on #{@node_rev.posted_at}"
+    Posted by <strong>#{@user[:name]}</strong> on #{Time.at(@node_rev[:timestamp])}
   %div{:class=>"node-title"}
     %h3
-      = @node_rev.title
+      = @node_rev[:title]
   %div{:class=>"node-body"}
-    = @node_rev.body
+    = @node_rev[:body].bbcode_to_html
   %hr
   %div{:class=>"node-comments"}
-    - @node_rev.node.comments.each do |c|
+    - @comments.each do |c|
       %div{:class=>"node-comment"}
         %div
-          = "Posted by <strong>#{c.user.name}</strong> on #{c.posted_at}"
+          Posted by <strong>#{c}</strong> on #{Time.at(c[:timestamp])}
         %div
-          = c.comment
+          = c[:comment].bbcode_to_html
       %hr

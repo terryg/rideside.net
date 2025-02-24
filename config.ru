@@ -1,6 +1,6 @@
 require './init'
-require './app'
+require './app/application_controller'
 
 $stdout.sync = true
 
-run App
+run ApplicationController

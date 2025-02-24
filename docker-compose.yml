@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+      MYSQL_DATABASE: drupal
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./rideside-mysql.sql:/docker-entrypoint-initdb.d/1.sql"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  client:
+    image: rideside_app:latest
+    build:
+      context: .
+      target: client
+    environment:
+      DATABASE_URL: mysql2://drupal:drupal@db:3306/drupal
+    depends_on:
+      db:
+        condition: service_healthy
+
+        
