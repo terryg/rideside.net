@@ -6,7 +6,7 @@ class SinatraApp
   # Handles requests to '/~tgl'
   class TglController
     get '/' do
-      @projects = Project.make
+      @projects = Project.projects
 
       @cards = []
       text = File.read(File.join('app', 'cards.txt'))

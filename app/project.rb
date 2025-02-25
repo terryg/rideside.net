@@ -16,17 +16,15 @@ class Project
     end
   end
 
-  def self.make
-    return if @projects
-
-    @projects = []
-    text = File.read(File.join('app', 'projects.txt'))
-    text.each_line do |line|
-      c = line.split(',')
-      @projects << Project.new(c)
+  def self.projects
+    @projects ||= begin
+      text = File.read(File.join('app', 'projects.txt'))
+      projects = []
+      text.each_line do |line|
+        projects << Project.new(line.split(','))
+      end
+      projects
     end
-
-    @projects
   end
 
   private
