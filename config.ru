@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require './init'
-require './app/application_controller'
+require './app/application'
 
 $stdout.sync = true
 
-run ApplicationController
+run SinatraApp

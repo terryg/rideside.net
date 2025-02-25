@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rubygems'
 
 require 'haml'
@@ -5,6 +7,8 @@ require 'net/http'
 require 'rom'
 require 'rom-sql'
 require 'tumblr_client'
+
+require './app/application'
 
 Dir.glob('./app/**/*.rb').sort.each do |f|
   require f
@@ -23,4 +27,3 @@ configuration = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 configuration.register_relation(Comments, Nodes, NodeRevisions, Users)
 
 MAIN_CONTAINER = ROM.container(configuration)
-

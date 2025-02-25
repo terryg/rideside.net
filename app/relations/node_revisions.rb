@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Node state is tracked with a revision
 class NodeRevisions < ROM::Relation[:sql]
   schema(infer: true) do
     associations do

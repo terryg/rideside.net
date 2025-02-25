@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 ruby '3.2.3'
 
@@ -14,7 +16,7 @@ gem 'omniauth-tumblr'
 gem 'puma', '~> 6.6'
 gem 'readline'
 gem 'redcarpet'
-gem 'redis', '>= 3.2.0', :require => ['redis', 'redis/connection/hiredis']
+gem 'redis', '>= 3.2.0', require: ['redis', 'redis/connection/hiredis']
 gem 'rom'
 gem 'rom-sql'
 gem 'ruby-bbcode'
@@ -22,7 +24,8 @@ gem 'sinatra'
 gem 'tumblr_client', git: 'https://github.com/tumblr/tumblr_client.git'
 
 group :development do
+  gem 'cookstyle', '~> 7.32'
   gem 'database_cleaner'
+  gem 'rubocop', '~> 1.25.1'
   gem 'shotgun'
-  gem 'rubocop'
 end

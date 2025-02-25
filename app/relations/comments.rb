@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Comments relation. Belongs to Nodes and Users.
 class Comments < ROM::Relation[:sql]
   schema(infer: true) do
     associations do
@@ -9,9 +10,9 @@ class Comments < ROM::Relation[:sql]
   end
 
   def by_nid(nid)
-    where(nid: nid)
+    where(nid:)
   end
-  
+
   def for_nodes(_assoc, nodes)
     restrict(nid: nodes.map { |n| n[:nid] })
   end
@@ -19,5 +20,4 @@ class Comments < ROM::Relation[:sql]
   def for_users(_assoc, users)
     restrict(uid: users.map { |u| u[:uid] })
   end
-
 end

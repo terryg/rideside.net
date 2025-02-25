@@ -1,11 +1,8 @@
-class Post
+# frozen_string_literal: true
 
-  attr_accessor :blog_name
-  attr_accessor :date
-  attr_accessor :post_url
-  attr_accessor :title
-  attr_accessor :description
-  attr_accessor :body
+# A Tumblr post
+class Post
+  attr_accessor :blog_name, :date, :post_url, :title, :description, :body
 
   def initialize(attr)
     self.blog_name = attr['blog_name']
@@ -13,26 +10,41 @@ class Post
     self.post_url = attr['post_url']
     self.title = attr['title']
     self.description = attr['description']
+    self.body = attr['body']
+  end
+end
 
-    if attr['type'] == 'photo'
-      self.title = ""
-      self.description = ""
+# A post of a photo
+class PhotoPost < Post
+  def initialize(attr)
+    super
+    self.title = ''
+    self.description = ''
+    link = attr['photos'][0]['original_size']['url']
+    self.body = "<img src=\"#{link}\"/><br/><strong>#{attr['caption']}</strong>"
+  end
+end
 
-      link = attr['photos'][0]['original_size']['url']
-      self.body = "<img src=\"#{link}\"/><br/><strong>#{attr['caption']}</strong>"
-    elsif attr['type'] == 'video'
-      self.body = attr['player'][0]['embed_code']
+# A video post
+class VideoPost < Post
+  def initialize(attr)
+    super
+    self.body = attr['player'][0]['embed_code']
+  end
+end
 
-    elsif attr['type'] == 'text'
-      self.body = attr['body']
+# Text post
+class TextPost < Post
+  def initialize(attr)
+    super
+    self.body = attr['body']
+  end
+end
 
-    elsif attr['type'] == 'link'
-      self.body = "<a href=\"#{attr['url']}\" _target=\"blank\">&gt;&gt;</a>"
-
-    else
-      puts "*** #{attr}"
-      self.body = attr['body']
-
-    end
+# Link post
+class LinkPost < Post
+  def initialize(attr)
+    super
+    self.body = "<a href=\"#{attr['url']}\" _target=\"blank\">&gt;&gt;</a>"
   end
 end

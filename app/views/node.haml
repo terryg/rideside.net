@@ -21,13 +21,13 @@
     %h3
       = @node_rev[:title]
   %div{:class=>"node-body"}
-    = @node_rev[:body].bbcode_to_html
+    = "#{@node_rev[:body].bbcode_to_html}"
   %hr
   %div{:class=>"node-comments"}
     - @comments.each do |c|
       %div{:class=>"node-comment"}
         %div
-          Posted by <strong>#{c}</strong> on #{Time.at(c[:timestamp])}
+          Posted by <strong>#{c[:name]}</strong> on #{Time.at(c[:timestamp])}
         %div
           = c[:comment].bbcode_to_html
       %hr

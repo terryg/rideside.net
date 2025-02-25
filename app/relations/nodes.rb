@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Nodes relation has node revisions and comments, as well as a user
 class Nodes < ROM::Relation[:sql]
   schema(:node, infer: true, as: :nodes) do
     associations do
@@ -15,6 +16,5 @@ class Nodes < ROM::Relation[:sql]
     def last
       order { created.asc }
     end
-  
   end
 end

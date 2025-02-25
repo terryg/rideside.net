@@ -1,15 +1,16 @@
-class User
+# frozen_string_literal: true
 
-  def self.get_all
+# Helper to parse the users.txt datastore
+class User
+  def self.all
     if @users.nil?
       @users = []
-      text = File.open(File.join('app', 'users.txt')).read
+      text = File.read(File.join('app', 'users.txt'))
       text.each_line do |line|
-        @users << line.gsub(/\n/, "")
+        @users << line.gsub(/\n/, '')
       end
     end
 
-    return @users
+    @users
   end
-
 end

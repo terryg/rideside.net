@@ -16,4 +16,3 @@ lxc_name=<add_container_name>
 db_url=<add_mysql_connection>
 tumblr_key=<add_tumblr_consumer_key>
 tumblr_secret=<add_tumblr_consumer_secret>
-  

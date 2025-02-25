@@ -2,7 +2,7 @@
 
   vars:
     service_user: ubuntu
-    
+
   tasks:
     - name: Update system
       ansible.builtin.shell:
@@ -11,7 +11,7 @@
     - name: Install system dependencies
       ansible.builtin.shell:
         cmd: lxc exec {{ lxc_name }} -- sh -c "sudo apt install -y build-essential libmysqlclient-dev ruby ruby-dev"
-        
+
     - name: Create {{ app_dir }} on host
       file:
         path: "{{ app_dir }}"
@@ -51,7 +51,7 @@
     - name: Enable service in container
       ansible.builtin.shell:
         cmd: lxc exec {{ lxc_name }} -- sh -c "sudo systemctl enable rideside"
-        
+
     - name: Restart container
       ansible.builtin.shell:
         cmd: lxc restart {{ lxc_name }}

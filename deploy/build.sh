@@ -37,6 +37,3 @@ rm -rf $DEPLOYMENT_DIR
 mkdir -p $DEPLOYMENT_DIR
 
 git archive --prefix=rideside/ --format=tar HEAD | gzip >$DEPLOYMENT_DIR/rideside.tar.gz
-
-
-

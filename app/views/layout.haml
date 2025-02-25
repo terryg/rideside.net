@@ -6,10 +6,9 @@
     %meta{:name=>"description",:content=>""}
     %meta{:name=>"author",:content=>""}
 
-    
+
   %title
     rideside.net
-  %link{:href=>"//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css", :rel=>"stylesheet"}
   %link{:href=>"/css/main.css", :rel=>"stylesheet"}
 
   %body
@@ -18,19 +17,15 @@
         %h1
           rideside.net
         %h2
-          <a href="/">home</a> | <a href="/about">about</a> | <a href="/tracker">tracker</a> | <a href="/comics">comics</a>
-
+          <a href="/">home</a> | <a href="/tracker">tracker</a> | <a href="/comics">comics</a> | <a href="/archive">archive</a> | <a href="/about">about</a>
 
       %div
         %em
           = Quip.make
 
       != yield
-    
+
       %div
         Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
 
     != File.read(File.join('app', 'views', 'google_analytics.html'))
-
-    %script{:src=>"http://code.jquery.com/jquery.js"}
-    %script{:src=>"//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"}
