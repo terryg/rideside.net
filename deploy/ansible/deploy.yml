@@ -28,16 +28,17 @@
       ansible.builtin.shell:
         cmd: lxc file push {{ app_dir }}/rideside.tar.gz {{ lxc_name }}{{ home_dir }}/rideside.tar.gz
 
-    - name: Config Bundler
-      ansible.builtin.shell:
-        cmd: lxc exec {{ lxc_name }} --user 1000 --cwd {{ deploy_dir }} -- sh -c "/usr/local/bin/bundle config set deployment true"
-    - name: Install Ruby Gems
-      ansible.builtin.shell:
-        cmd: lxc exec {{ lxc_name }} --user 1000 --cwd {{ deploy_dir }} -- sh -c "/usr/local/bin/bundle install"
-
     - name: Extract {{ home_dir }}/rideside.tar.gz in container
       ansible.builtin.shell:
         cmd: lxc exec {{ lxc_name }} --cwd {{ home_dir }} -- sh -c "tar -xzvf rideside.tar.gz && chown -R ubuntu:ubuntu rideside"
+
+    - name: Config Bundler
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} --user 1000 --cwd {{ deploy_dir }} -- sh -c "/usr/local/bin/bundle config set deployment true"
+
+    - name: Install Ruby Gems
+      ansible.builtin.shell:
+        cmd: lxc exec {{ lxc_name }} --user 1000 --cwd {{ deploy_dir }} -- sh -c "/usr/local/bin/bundle install"
 
     - name: Create service config
       template:

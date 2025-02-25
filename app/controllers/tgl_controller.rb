@@ -9,7 +9,7 @@ class SinatraApp
       @projects = Project.make
 
       @cards = []
-      text = File.read(File.join('app', 'projects.txt'))
+      text = File.read(File.join('app', 'cards.txt'))
       text.each_line do |line|
         c = line.split(',')
         @cards << [c[0], c[1]]

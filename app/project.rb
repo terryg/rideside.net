@@ -33,9 +33,9 @@ class Project
 
   def init_from_array(attr)
     self.topic = attr[0]
-    self.description = attr[2]
-    self.imgpath = attr[3]
-    self.imgwidth = attr[4]
-    self.projectlink = attr[5]
+    self.description = attr[1]
+    self.imgpath = attr[2]
+    self.imgwidth = attr[3]
+    self.projectlink = attr[4]
   end
 end
