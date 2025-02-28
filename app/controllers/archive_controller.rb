@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class SinatraApp
-  # Handles requests to '/tracker'
-  class TrackerController
+  # Handles requests to '/archive'
+  class ArchiveController
     get '/' do
       if params[:q].nil?
         nodes = MAIN_CONTAINER.relations[:nodes]
@@ -30,7 +30,7 @@ class SinatraApp
 
       @months = []
 
-      haml :tracker
+      haml :archive
     end
 
     get '/:year' do
@@ -38,7 +38,7 @@ class SinatraApp
       @years = []
       @months = ('01'..'12')
       @nodes = []
-      haml :tracker
+      haml :archive
     end
 
     get '/:year/:month' do
@@ -65,7 +65,7 @@ class SinatraApp
 
       @years = []
       @months = []
-      haml :tracker
+      haml :archive
     end
 
     get '/:year/:month/:day' do
@@ -87,7 +87,7 @@ class SinatraApp
 
       @years = []
       @months = []
-      haml :tracker
+      haml :archive
     end
   end
 end

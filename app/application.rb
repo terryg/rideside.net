@@ -46,8 +46,8 @@ class SinatraApp < Sinatra::Base
     map '/nodes'
   end
 
-  class TrackerController < SinatraApp
-    map '/tracker'
+  class ArchiveController < SinatraApp
+    map '/archive'
   end
 
   class TglController < SinatraApp

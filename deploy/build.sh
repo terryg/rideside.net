@@ -36,4 +36,6 @@ cd $BUILD_DIR
 rm -rf $DEPLOYMENT_DIR
 mkdir -p $DEPLOYMENT_DIR
 
-git archive --prefix=rideside/ --format=tar HEAD | gzip >$DEPLOYMENT_DIR/rideside.tar.gz
+docker compose build client
+
+docker save rideside_app:latest | gzip > $DEPLOYMENT_DIR/rideside_app_latest.tar.gz

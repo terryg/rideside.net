@@ -1,6 +1,6 @@
 %div{:class => "search"}
   %h3
-    %form{:method => "GET", :action => "/tracker"}
+    %form{:method => "GET", :action => "/archive"}
       %input{:type => "text", :name => "q"}
       %input{:type => "submit", :value => "Search"}
 
@@ -8,18 +8,18 @@
   %h3
     - unless @year.nil?
       %span
-        %a{:href=>"/tracker"} tracker
+        %a{:href=>"/archive"} archive
         &#47;
-        %a{:href=>"/tracker/#{@year}"} #{@year}
+        %a{:href=>"/archive/#{@year}"} #{@year}
     - unless @month.nil?
       %span
         &#47;
-        %a{:href=>"/tracker/#{@year}/#{@month}"} #{@month}
+        %a{:href=>"/archive/#{@year}/#{@month}"} #{@month}
 
 %div{:class=>"content"}
   - @years.each do |y|
     %div{:class=>"post"}
-      %a{:href=>"/tracker/#{y}"}
+      %a{:href=>"/archive/#{y}"}
         %h2
           = y
 
@@ -33,6 +33,6 @@
       %ul{:style=>"list-style-type:none;"}
         - @months.each do |m|
           %li
-            %a{:href=>"/tracker/#{@year}/#{m}"}
+            %a{:href=>"/archive/#{@year}/#{m}"}
               %h2
                 = m

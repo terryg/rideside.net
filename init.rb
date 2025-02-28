@@ -8,8 +8,6 @@ require 'rom'
 require 'rom-sql'
 require 'tumblr_client'
 
-require './app/application'
-
 Dir.glob('./app/**/*.rb').sort.each do |f|
   require f
 end
