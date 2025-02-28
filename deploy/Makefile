@@ -1,10 +1,11 @@
 RIDESIDE_BRANCH ?= local
 ANSIBLE_INVENTORY ?= ansible/inventory
+SETUP_STAMP = .setup.stamp
 
-.PHONY: all
-all: deploy-all
+.PHONY: all build check_branch check_inventory clean deploy setup
 
-.PHONY: check_branch
+all: deploy;
+
 check_branch:
 ifeq ($(RIDESIDE_BRANCH),)
 	@echo ""
@@ -14,7 +15,6 @@ ifeq ($(RIDESIDE_BRANCH),)
 	@exit 1
 endif
 
-.PHONY: check_inventory
 check_inventory:
 ifeq ($(ANSIBLE_INVENTORY),)
 	@echo ""
@@ -24,23 +24,17 @@ ifeq ($(ANSIBLE_INVENTORY),)
 	@exit 1
 endif
 
-.PHONY: deploy-all
-deploy-all: deploy-rideside
+$(SETUP_STAMP): check_branch check_inventory
+  touch $(SETUP_STAMP)
 
+setup: $(SETUP_STAMP) ansible/setup.yml
+	ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/setup.yml
 
-
-.PHONY: deploy-all
-deploy-all: deploy-kaleidocycle
-
-.PHONY: build
-build: check_branch check_inventory
+build: setup
 	./build.sh ${RIDESIDE_BRANCH}
 
-.PHONY: deploy
-deploy:
+deploy: build ansible/deploy.yml
 	ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/deploy.yml
 
-.PHONY: deploy-kaleidocycle
-deploy-kaleidocycle:
-	$(MAKE) build
-	$(MAKE) deploy
+clean:
+	rm $(SETUP_STAMP)

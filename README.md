@@ -1,6 +1,5 @@
-rideside.net
-============
+# rideside.net
 
-Reborn from the Drupal ashes with Sinatra & tumblr_client
+A Sinatra.rb application running against a Drupal schema.
 
-Visit us at http://rideside.net
+Visit us at https://rideside.net

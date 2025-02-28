@@ -1,7 +1,22 @@
 - hosts: servers
 
   tasks:
-    - name: Create {{ app_dir }} on host
-      file:
-        path: "{{ app_dir }}"
-        state: directory
+    - name: Sync docker image
+      synchronize:
+        src: "{{ src_dir }}/rideside_app_latest.tar.gz"
+        dest: "{{ deploy_dir }}"
+
+    - name: Load docker image
+      ansible.builtin.shell:
+        cmd: docker load < rideside_app_latest.tar.gz
+        chdir: "{{ deploy_dir }}"
+
+    - name: Run docker image as container
+      ansible.builtin.shell:
+        cmd: >
+          docker run -d
+          -p 4567:4567
+          -e "DATABASE_URL={{ db_url }}"
+          -e "TUMBLR_CONSUMER_KEY={{ tumblr_key }}"
+          -e "TUMBLR_CONSUMER_SECRET={{ tumblr_secret }}"
+          rideside_app:latest

@@ -1,0 +1,13 @@
+- hosts: servers
+
+  tasks:
+    - name: Add {{ ansible_user }} to docker group
+      become: true
+      ansible.builtin.shell: usermod -aG docker {{ ansible_user }}
+
+    - name: Allow port 4567/tcp
+      become: true
+      ufw:
+        rule: allow
+        port: 4567
+        proto: tcp

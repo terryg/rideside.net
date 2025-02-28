@@ -19,8 +19,6 @@ Tumblr.configure do |config|
   config.oauth_token_secret = ENV['TUMBLR_TOKEN_SECRET']
 end
 
-puts "=== DB URL #{ENV['DATABASE_URL']} ==="
-
 configuration = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 configuration.register_relation(Comments, Nodes, NodeRevisions, Users)
 
