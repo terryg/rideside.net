@@ -12,7 +12,7 @@ class SinatraApp
       text = File.read(File.join('app', 'cards.txt'))
       text.each_line do |line|
         c = line.split(',')
-        @cards << [c[0], c[1]]
+        @cards << [c[0], "#{request.path}/#{c[1]}"]
       end
 
       haml :tgl, layout: false

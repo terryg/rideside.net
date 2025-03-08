@@ -25,7 +25,7 @@ ifeq ($(ANSIBLE_INVENTORY),)
 endif
 
 $(SETUP_STAMP): check_branch check_inventory
-  touch $(SETUP_STAMP)
+	touch $(SETUP_STAMP)
 
 setup: $(SETUP_STAMP) ansible/setup.yml
 	ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/setup.yml

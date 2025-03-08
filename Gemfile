@@ -24,8 +24,6 @@ gem 'sinatra'
 gem 'tumblr_client', git: 'https://github.com/tumblr/tumblr_client.git'
 
 group :development do
-  gem 'cookstyle', '~> 7.32'
   gem 'database_cleaner'
   gem 'rubocop', '~> 1.25.1'
-  gem 'shotgun'
 end
