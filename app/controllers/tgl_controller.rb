@@ -8,11 +8,17 @@ class SinatraApp
     get '/' do
       @projects = Project.projects
 
+      prefix = if request.base_url == 'https://tgl.rideside.net'
+                 ''
+               else
+                 '/~tgl'
+               end
+
       @cards = []
       text = File.read(File.join('app', 'cards.txt'))
       text.each_line do |line|
         c = line.split(',')
-        @cards << [c[0], "#{request.path}/#{c[1]}"]
+        @cards << [c[0], "#{prefix}/#{c[1]}"]
       end
 
       haml :tgl, layout: false
