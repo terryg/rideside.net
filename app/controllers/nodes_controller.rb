@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class SinatraApp
+  # Reply to the comment you are replying to
+  class CommentGraph
+  end
+
   # Handles requests to '/nodes'
   class NodesController
     get '/:id' do
@@ -16,10 +20,10 @@ class SinatraApp
       @node_rev = node_revs.where(nid: @node[:nid]).last
 
       comments = MAIN_CONTAINER.relations[:comments]
-      @comments = comments.by_nid(@node[:nid]).join(:users, uid: :uid)
+      comments_for_node = comments.by_nid(@node[:nid]).join(:users, uid: :uid)
 
-      puts '=== @comments ==='
-      puts @comments
+      comments_for_node.each do |comment|
+      end
 
       users = MAIN_CONTAINER.relations[:users]
       @user = users.by_pk(@node[:uid]).one!
@@ -37,24 +41,16 @@ class SinatraApp
         end
 
         client = Tumblr::Client.new
-
-        puts '***** made client'
-
         body_text = params[:body]
-
         timestamp = Time.now
-
-        puts '**** Starting...'
 
         client.text("#{@current_user.name}.tumblr.com", {
                       title: timestamp.strftime('%Y-%m-%d %H:%M'),
                       body: body_text,
                       tags: [params[:tag_names]]
                     })
-
-        puts '**** Done.'
       else
-        puts '**** Current User is nil!'
+        puts 'ERROR - POST / - Current User is nil!'
       end
 
       redirect '/'

@@ -16,18 +16,24 @@
 
 %div{:id=>"node-#{@node_rev[:nid]}",:class=>"node"}
   %div{:class=>"node-header"}
-    Posted by <strong>#{@user[:name]}</strong> on #{Time.at(@node_rev[:timestamp])}
+    - if @user[:name] == "tgl"
+      Posted by <a href="https://tgl.rideside.net"><strong>#{@user[:name]}</strong></a> on #{Time.at(@node_rev[:timestamp])}
+    - else
+      Posted by <strong>#{@user[:name]}</strong> on #{Time.at(@node_rev[:timestamp])}
   %div{:class=>"node-title"}
     %h3
       = @node_rev[:title]
   %div{:class=>"node-body"}
-    = "#{@node_rev[:body].bbcode_to_html}"
+    != @node_rev[:body]
   %hr
   %div{:class=>"node-comments"}
     - @comments.each do |c|
       %div{:class=>"node-comment"}
         %div
-          Posted by <strong>#{c[:name]}</strong> on #{Time.at(c[:timestamp])}
+          - if c[:name] == "tgl"
+            Posted by <a href="https://tgl.rideside.net"><strong>tgl</strong></a> on #{Time.at(c[:timestamp])}
+          - else
+            Posted by <strong>#{c[:name]}</strong> on #{Time.at(c[:timestamp])}
         %div
-          = c[:comment].bbcode_to_html
+          != c[:comment]
       %hr
