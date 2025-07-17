@@ -22,7 +22,9 @@ class SinatraApp
       comments = MAIN_CONTAINER.relations[:comments]
       comments_for_node = comments.by_nid(@node[:nid]).join(:users, uid: :uid)
 
+      @comments = []
       comments_for_node.each do |comment|
+        @comments.push(comment)
       end
 
       users = MAIN_CONTAINER.relations[:users]
