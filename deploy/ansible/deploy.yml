@@ -42,3 +42,33 @@
         state: restarted
         daemon_reload: yes
         enabled: yes
+
+- hosts: balancers
+
+  tasks:
+
+  - name: Install rideside.net config
+    become: yes
+    synchronize:
+      src: "{{ src_dir }}//config//rideside-net"
+      dest: /etc/nginx/sites-available/rideside-net
+
+  - name: Enable rideside.net
+    file:
+      src: /etc/nginx/sites-available/rideside-net
+      dest: /etc/nginx/sites-enabled/rideside-net
+      state: link
+    notify: Restart Nginx
+
+  - name: Install tgl.rideside.net config
+    become: yes
+    synchronize:
+      src: "{{ src_dir }}//config//tgl-rideside-net"
+      dest: /etc/nginx/sites-available/tgl-rideside-net
+
+  - name: Enable tgl.rideside.net
+    file:
+      src: /etc/nginx/sites-available/tgl-rideside-net
+      dest: /etc/nginx/sites-enabled/tgl-rideside-net
+      state: link
+    notify: Restart Nginx
