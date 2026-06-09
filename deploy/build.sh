@@ -39,3 +39,5 @@ mkdir -p $DEPLOYMENT_DIR
 docker compose build client
 
 docker save rideside_app:latest | gzip > $DEPLOYMENT_DIR/rideside_app_latest.tar.gz
+
+cp -r config $DEPLOYMENT_DIR/
