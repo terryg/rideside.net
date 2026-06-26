@@ -1,0 +1,31 @@
+!!! Strict
+%html{:lang => "en"}
+  %head
+    %meta{:charset=>"utf8"}
+    %meta{:name=>"viewport",:content=>"width=device-width, initial-scale=1.0"}
+    %meta{:name=>"description",:content=>""}
+    %meta{:name=>"author",:content=>""}
+
+
+  %title
+    rideside.net
+  %link{:href=>"/css/main.css", :rel=>"stylesheet"}
+
+  %body
+    #container
+      %div
+        %h1
+          rideside.net
+        %h2
+          <a href="/">home</a> | <a href="/archive">archive</a> | <a href="/comics">comics</a> | <a href="/about">about</a>
+
+      %div
+        %em
+          = Quip.make
+
+      != yield
+
+      %div
+        Find me on <a href="http://github.com/terryg/rideside.net">github</a>.
+
+    != File.read(File.join('app', 'views', 'google_analytics.html'))

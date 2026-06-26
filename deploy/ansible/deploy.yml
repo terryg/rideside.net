@@ -1,0 +1,74 @@
+- hosts: servers
+
+  tasks:
+    - name: Sync docker image
+      synchronize:
+        src: "{{ src_dir }}//rideside_app_latest.tar.gz"
+        dest: "{{ deploy_dir }}"
+
+    - name: Load docker image
+      ansible.builtin.shell:
+        cmd: docker load < rideside_app_latest.tar.gz
+        chdir: "{{ deploy_dir }}"
+
+    - name: Stop running conatiner
+      ansible.builtin.shell:
+        cmd: docker container remove --force {{ container_name }}
+
+    - name: Run docker image as container
+      ansible.builtin.shell:
+        cmd: >
+          docker run -d
+          -p 4567:4567
+          -e "DATABASE_URL={{ db_url }}"
+          -e "TUMBLR_CONSUMER_KEY={{ tumblr_key }}"
+          -e "TUMBLR_CONSUMER_SECRET={{ tumblr_secret }}"
+          --name {{ container_name }}
+          rideside_app:latest
+
+    - name: Install rideside.net service
+      become: yes
+      template:
+        src: ./templates/systemd-service.j2
+        dest: /etc/systemd/system/net.rideside.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable and start rideside.net service
+      become: yes
+      systemd:
+        name: net.rideside
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+
+- hosts: balancers
+
+  tasks:
+
+  - name: Install rideside.net config
+    become: yes
+    synchronize:
+      src: "{{ src_dir }}//config//rideside-net"
+      dest: /etc/nginx/sites-available/rideside-net
+
+  - name: Enable rideside.net
+    file:
+      src: /etc/nginx/sites-available/rideside-net
+      dest: /etc/nginx/sites-enabled/rideside-net
+      state: link
+    notify: Restart Nginx
+
+  - name: Install tgl.rideside.net config
+    become: yes
+    synchronize:
+      src: "{{ src_dir }}//config//tgl-rideside-net"
+      dest: /etc/nginx/sites-available/tgl-rideside-net
+
+  - name: Enable tgl.rideside.net
+    file:
+      src: /etc/nginx/sites-available/tgl-rideside-net
+      dest: /etc/nginx/sites-enabled/tgl-rideside-net
+      state: link
+    notify: Restart Nginx

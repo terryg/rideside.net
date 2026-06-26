@@ -1,0 +1,38 @@
+upstream rideside_backend {
+  server thermos.metatooth.com:4567;
+}
+
+server {
+  listen 443 ssl;
+  server_name www.rideside.net rideside.net;
+
+  if ($scheme = http) {
+    return 301 https://$host$request_uri;
+  }
+
+  location / {
+    proxy_pass http://rideside_backend/;
+
+    proxy_headers_hash_max_size 512;
+    proxy_headers_hash_bucket_size 128;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  ssl_certificate /root/.acme.sh/rideside.net_ecc/fullchain.cer;
+  ssl_certificate_key /root/.acme.sh/rideside.net_ecc/rideside.net.key;
+}
+
+server {
+  if ($host = www.rideside.net) {
+    return 301 https://rideside.net$request_uri;
+  }
+
+  if ($host = rideside.net) {
+    return 301 https://$host$request_uri;
+  }
+
+  listen 80;
+  server_name www.rideside.net rideside.net;
+  return 404;
+}

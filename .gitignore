@@ -4,3 +4,5 @@ views/resume.haml
 vendor/.*
 .*
 vendor/bundle
+.bundle
+_venv

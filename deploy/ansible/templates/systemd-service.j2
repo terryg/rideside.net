@@ -1,0 +1,12 @@
+[Unit]
+Description=The rideside.net website
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start --attach {{ container_name }}
+ExecStop=/usr/bin/docker stop --time 2 {{ container_name }}
+
+[Install]
+WantedBy=default.target
