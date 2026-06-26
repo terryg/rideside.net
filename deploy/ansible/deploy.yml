@@ -11,14 +11,22 @@
         cmd: docker load < rideside_app_latest.tar.gz
         chdir: "{{ deploy_dir }}"
 
-    - name: Stop running conatiner
+    - name: Stop rideside.net service
+      become: yes
+      systemd:
+        name: net.rideside
+        state: stopped
+      ignore_errors: yes
+
+    - name: Remove old container
       ansible.builtin.shell:
         cmd: docker container remove --force {{ container_name }}
+      ignore_errors: yes
 
-    - name: Run docker image as container
+    - name: Create new container
       ansible.builtin.shell:
         cmd: >
-          docker run -d
+          docker create
           -p 4567:4567
           -e "DATABASE_URL={{ db_url }}"
           -e "TUMBLR_CONSUMER_KEY={{ tumblr_key }}"
@@ -39,7 +47,7 @@
       become: yes
       systemd:
         name: net.rideside
-        state: restarted
+        state: started
         daemon_reload: yes
         enabled: yes
 
