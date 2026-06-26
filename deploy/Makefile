@@ -33,8 +33,9 @@ setup: $(SETUP_STAMP) ansible/setup.yml
 build: setup
 	./build.sh ${RIDESIDE_BRANCH}
 
-deploy: build ansible/deploy.yml
+deploy: build ansible/deploy.yml ansible/restart.yml
 	ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/deploy.yml
+	ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/restart.yml
 
 clean:
 	rm $(SETUP_STAMP)

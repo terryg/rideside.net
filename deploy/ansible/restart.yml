@@ -1,0 +1,17 @@
+- hosts: servers
+
+  tasks:
+    - name: Restart rideside.net service
+      become: yes
+      systemd:
+        name: net.rideside
+        state: restarted
+
+- hosts: balancers
+
+  tasks:
+    - name: Restart nginx
+      become: yes
+      systemd:
+        name: nginx
+        state: restarted
