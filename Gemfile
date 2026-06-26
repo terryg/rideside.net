@@ -12,7 +12,7 @@ gem 'nokogiri', '~> 1.19'
 gem 'oauth'
 gem 'omniauth'
 gem 'omniauth-tumblr'
-gem 'puma', '~> 6.6'
+gem 'puma', '~> 7.2'
 gem 'readline'
 gem 'redcarpet'
 gem 'redis', '>= 3.2.0', require: ['redis', 'redis/connection/hiredis']
