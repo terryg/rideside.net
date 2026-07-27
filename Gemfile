@@ -5,7 +5,7 @@ ruby '3.2.3'
 
 gem 'haml'
 gem 'hiredis', '~> 0.6'
-gem 'json', '>= 2.10.2'
+gem 'json', '>= 2.19.9'
 gem 'multi_json'
 gem 'mysql2'
 gem 'nokogiri', '~> 1.19'
