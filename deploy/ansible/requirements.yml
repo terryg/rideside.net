@@ -1,0 +1,9 @@
+---
+collections:
+  # The ansible.posix bundled with ansible-core still imports from the
+  # deprecated ansible.module_utils._text and
+  # ansible.module_utils.common._collections_compat, both of which are removed
+  # in ansible-core 2.24. 2.2.0 moved to the supported locations.
+  - name: ansible.posix
+    version: ">=2.2.0"
+  - name: community.general
