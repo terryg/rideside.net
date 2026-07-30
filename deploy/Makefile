@@ -1,11 +1,16 @@
 RIDESIDE_BRANCH ?= local
 ANSIBLE_INVENTORY ?= ansible/inventory
 SETUP_STAMP = .setup.stamp
+REQUIREMENTS_STAMP = .requirements.stamp
 
 # Ansible lives in the top-level venv; see ../Makefile and ansible.cfg.
 VENV ?= _venv
 ANSIBLE_GALAXY = ../$(VENV)/bin/ansible-galaxy
 ANSIBLE_PLAYBOOK = ../$(VENV)/bin/ansible-playbook
+
+# Keeps the collections path in sync when VENV is overridden. ansible.cfg has
+# the same path hard-coded for the default venv, for running ansible by hand.
+export ANSIBLE_COLLECTIONS_PATH = ../$(VENV)/collections
 
 .PHONY: all build check_branch check_inventory clean deploy requirements setup
 
@@ -35,10 +40,13 @@ $(SETUP_STAMP): check_branch check_inventory
 ../$(VENV)/bin/activate:
 	$(MAKE) -C .. $(VENV)/bin/activate
 
-requirements: ../$(VENV)/bin/activate ansible/requirements.yml
+$(REQUIREMENTS_STAMP): ../$(VENV)/bin/activate ansible/requirements.yml
 	$(ANSIBLE_GALAXY) collection install -r ansible/requirements.yml
+	touch $(REQUIREMENTS_STAMP)
 
-setup: $(SETUP_STAMP) requirements ansible/setup.yml
+requirements: $(REQUIREMENTS_STAMP)
+
+setup: $(SETUP_STAMP) $(REQUIREMENTS_STAMP) ansible/setup.yml
 	$(ANSIBLE_PLAYBOOK) -i ${ANSIBLE_INVENTORY} ansible/setup.yml
 
 build: setup
@@ -49,4 +57,4 @@ deploy: build ansible/deploy.yml ansible/restart.yml
 	$(ANSIBLE_PLAYBOOK) -i ${ANSIBLE_INVENTORY} ansible/restart.yml
 
 clean:
-	rm $(SETUP_STAMP)
+	rm -f $(SETUP_STAMP) $(REQUIREMENTS_STAMP)
