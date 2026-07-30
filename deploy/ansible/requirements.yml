@@ -1,0 +1,14 @@
+---
+collections:
+  # Pinned exactly so deploys are reproducible; bump deliberately.
+  #
+  # The ansible.posix bundled with ansible-core still imports from the
+  # deprecated ansible.module_utils._text and
+  # ansible.module_utils.common._collections_compat, both of which are removed
+  # in ansible-core 2.24. 2.2.0 moved to the supported locations, so do not pin
+  # this below that.
+  - name: ansible.posix
+    version: "2.2.2"
+  # Provides ufw, used by setup.yml; not bundled with bare ansible-core.
+  - name: community.general
+    version: "13.2.0"
