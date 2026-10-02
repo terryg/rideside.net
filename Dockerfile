@@ -1,6 +1,6 @@
 FROM ruby:4.0.7-alpine AS base
 
-ENV RACK_ENV production
+ENV RACK_ENV=production
 
 WORKDIR /code
 
