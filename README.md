@@ -6,7 +6,7 @@ Visit us at https://rideside.net
 
 ## System Dependencies
 
-Ruby and it's Bundler. Convenient to use `rvm` to install Ruby 3.2.3
+Ruby and it's Bundler. Convenient to use `rvm` to install Ruby 4.0.7
 
 Mariadb is also needed, run directly or through Docker.
 

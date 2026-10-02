@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
-ruby '3.2.3'
+ruby '4.0.7'
 
 gem 'haml'
 gem 'hiredis', '~> 0.6'

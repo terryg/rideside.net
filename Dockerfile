@@ -1,4 +1,4 @@
-FROM ruby:3.2.3-alpine AS base
+FROM ruby:4.0.7-alpine AS base
 
 ENV RACK_ENV production
 
@@ -9,6 +9,8 @@ RUN apk update \
   && apk add --update --no-cache alpine-sdk git mariadb-dev ruby-dev
 
 COPY Gemfile* ./
+
+RUN gem install bundler -v 4.0.20
 
 RUN bundle install
 
