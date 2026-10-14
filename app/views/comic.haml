@@ -4,5 +4,7 @@
   %em Source:
   %a{href: url}= url
 
+- if fallback
+  %p= fallback
 - tokens.each do |token|
-  %div!= token
+  %img{src: token, alt: title}
