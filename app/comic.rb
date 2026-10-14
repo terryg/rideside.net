@@ -3,7 +3,7 @@
 # Generate comic strip entries
 class Comic
   def self.make
-    return if @comics
+    return @comics if @comics
 
     @comics = []
 
@@ -30,7 +30,7 @@ class Comic
   end
 
   def self.make_output(title, url, pattern)
-    response = Net::HTTP.get_response(URI.parse(CGI.escape(url)))
+    response = Net::HTTP.get_response(URI.parse(url))
     return "Response code is #{response.code}" if response.code != '200'
 
     tokens = []
@@ -38,7 +38,8 @@ class Comic
       tokens << line if line.match(pattern)
     end
 
-    engine = Haml::Template.new(File.open(File.join('app', 'views', 'comic.haml')).read)
-    engine.render({ tokens:, title:, url: })
+    template = File.join('app', 'views', 'comic.haml')
+    engine = Haml::Template.new(template) { File.read(template) }
+    engine.render(Object.new, tokens:, title:, url:)
   end
 end

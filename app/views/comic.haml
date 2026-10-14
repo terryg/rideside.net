@@ -1,8 +1,8 @@
 %div
-  %strong= @title
+  %strong= title
 %div
-  %em= Source:
-  %a{:href=>@url}= @url
+  %em Source:
+  %a{href: url}= url
 
-- @tokens.each do |token|
-  %div= token
+- tokens.each do |token|
+  %div!= token
