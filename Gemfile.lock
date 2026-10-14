@@ -115,6 +115,8 @@ GEM
     ice_nine (0.11.2)
     io-console (0.9.4)
     json (2.21.2)
+    language_server-protocol (3.17.0.6)
+    lint_roller (1.1.0)
     logger (1.7.0)
     mime-types (3.7.0)
       logger
@@ -196,7 +198,6 @@ GEM
     regexp_parser (2.13.1)
     reline (0.7.0)
       io-console (~> 0.5)
-    rexml (3.4.4)
     rom (5.4.3)
       rom-changeset (~> 5.4)
       rom-core (~> 5.4)
@@ -223,15 +224,17 @@ GEM
       dry-types (~> 1.8)
       rom (~> 5.4)
       sequel (>= 4.49)
-    rubocop (1.25.1)
-      parallel (~> 1.10)
-      parser (>= 3.1.0.0)
+    rubocop (1.92.0)
+      json (>= 2.3)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
+      parallel (>= 1.10)
+      parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.8, < 3.0)
-      rexml
-      rubocop-ast (>= 1.15.1, < 2.0)
+      regexp_parser (>= 2.11.3, < 3.0)
+      rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 3.0)
+      unicode-display_width (>= 2.4.0, < 4.0)
     rubocop-ast (1.50.0)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
@@ -261,7 +264,9 @@ GEM
     tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    unicode-display_width (2.6.0)
+    unicode-display_width (3.3.0)
+      unicode-emoji (~> 4.3)
+    unicode-emoji (4.3.0)
     uri (1.1.1)
     version_gem (1.1.15)
     zeitwerk (2.8.3)
@@ -296,7 +301,7 @@ DEPENDENCIES
   redis (>= 3.2.0)
   rom
   rom-sql
-  rubocop (~> 1.25.1)
+  rubocop (~> 1.92.0)
   ruby-bbcode
   sinatra
   tsort
