@@ -28,5 +28,5 @@ gem 'tumblr_client', git: 'https://github.com/tumblr/tumblr_client.git'
 group :development do
   gem 'database_cleaner'
   gem 'foreman'
-  gem 'rubocop', '~> 1.25.1'
+  gem 'rubocop', '~> 1.92.0'
 end
