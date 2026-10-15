@@ -3,6 +3,18 @@
 class SinatraApp
   # Handles requests to '/archive'
   class ArchiveController
+    helpers do
+      def author_name(node)
+        @author_names ||= {}
+        @author_names[node[:uid]] ||=
+          MAIN_CONTAINER.relations[:users].by_pk(node[:uid]).one![:name]
+      end
+
+      def reply_count(node)
+        MAIN_CONTAINER.relations[:comments].by_nid(node[:nid]).count
+      end
+    end
+
     get '/' do
       if params[:q].nil?
         nodes = MAIN_CONTAINER.relations[:nodes]

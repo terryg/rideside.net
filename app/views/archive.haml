@@ -25,8 +25,17 @@
 
   - @nodes.each do |n|
     %div{:class=>"post"}
+      = Time.at(n[:created].to_i).strftime('%Y-%m-%d')
       %a{:href=>"/nodes/#{n[:nid]}"}
         = n[:title]
+      - author = author_name(n)
+      by
+      - if author == 'tgl'
+        %a{:href=>"https://tgl.rideside.net"}= author
+      - else
+        %strong= author
+      - replies = reply_count(n)
+      \- #{replies} #{replies == 1 ? 'reply' : 'replies'}
 
   - unless @year.nil?
     %div{:class=>"post"}
