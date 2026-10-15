@@ -6,6 +6,12 @@
         src: "{{ src_dir }}//rideside_app_latest.tar.gz"
         dest: "{{ deploy_dir }}"
 
+    - name: Install MariaDB CA certificate
+      ansible.builtin.copy:
+        src: files/denmark-ca.pem
+        dest: "{{ deploy_dir }}/denmark-ca.pem"
+        mode: '0644'
+
     - name: Load docker image
       ansible.builtin.shell:
         cmd: docker load < rideside_app_latest.tar.gz
@@ -28,6 +34,7 @@
         cmd: >
           docker create
           -p 4567:4567
+          -v {{ deploy_dir }}/denmark-ca.pem:/etc/ssl/denmark-ca.pem:ro
           -e "DATABASE_URL={{ db_url }}"
           -e "TUMBLR_CONSUMER_KEY={{ tumblr_key }}"
           -e "TUMBLR_CONSUMER_SECRET={{ tumblr_secret }}"
@@ -62,6 +69,7 @@
       dest: /etc/nginx/sites-available/rideside-net
 
   - name: Enable rideside.net
+    become: yes
     file:
       src: /etc/nginx/sites-available/rideside-net
       dest: /etc/nginx/sites-enabled/rideside-net
@@ -75,8 +83,16 @@
       dest: /etc/nginx/sites-available/tgl-rideside-net
 
   - name: Enable tgl.rideside.net
+    become: yes
     file:
       src: /etc/nginx/sites-available/tgl-rideside-net
       dest: /etc/nginx/sites-enabled/tgl-rideside-net
       state: link
     notify: Restart Nginx
+
+  handlers:
+  - name: Restart Nginx
+    become: yes
+    systemd:
+      name: nginx
+      state: restarted
