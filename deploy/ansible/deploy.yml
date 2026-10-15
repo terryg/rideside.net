@@ -35,7 +35,7 @@
           docker create
           -p 4567:4567
           -v {{ deploy_dir }}/denmark-ca.pem:/etc/ssl/denmark-ca.pem:ro
-          -e "DATABASE_URL={{ db_url }}"
+          -e "DATABASE_URL={{ db_url }}{{ '&' if '?' in db_url else '?' }}sslca=/etc/ssl/denmark-ca.pem&ssl_mode=VERIFY_IDENTITY"
           -e "TUMBLR_CONSUMER_KEY={{ tumblr_key }}"
           -e "TUMBLR_CONSUMER_SECRET={{ tumblr_secret }}"
           --name {{ container_name }}
